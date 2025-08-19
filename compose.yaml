@@ -1,0 +1,176 @@
+name: cs79-interactive-dashboard
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: cs79-postgres
+    environment:
+      - POSTGRES_DB=cs79-dashboard
+      - POSTGRES_USER=cs79dashboard
+      - POSTGRES_PASSWORD=interactivedashboard_cs79-1
+    ports:
+      - "5480:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cs79dashboard -d cs79-dashboard"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - cs79-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: cs79-redis
+    command: redis-server --appendonly yes --requirepass interactivedashboard_cs79-1
+    ports:
+      - "5481:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "interactivedashboard_cs79-1", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - cs79-network
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: cs79-rabbitmq
+    hostname: cs79-rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=cs79dashboard
+      - RABBITMQ_DEFAULT_PASS=interactivedashboard_cs79-1
+      - RABBITMQ_DEFAULT_VHOST=cs79-health
+    ports:
+      - "5482:5672"    # AMQP Port
+      - "5483:15672"   # Management Portal
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - cs79-network
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: cs79-backend
+    ports:
+      - "5484:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/cs79-dashboard
+      - SPRING_DATASOURCE_USERNAME=cs79dashboard
+      - SPRING_DATASOURCE_PASSWORD=interactivedashboard_cs79-1
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_DATA_REDIS_PASSWORD=interactivedashboard_cs79-1
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=cs79dashboard
+      - SPRING_RABBITMQ_PASSWORD=interactivedashboard_cs79-1
+      - SPRING_RABBITMQ_VIRTUAL_HOST=cs79-health
+      - SERVER_PORT=8080
+      - ML_HOST=ml-service
+      - ML_PORT=5000
+      - CORS_ALLOWED_ORIGINS=http://localhost:5173,http://frontend:5486
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - cs79-network
+    restart: unless-stopped
+
+  ml-service:
+    build: 
+      context: ./dashboard-ml
+      dockerfile: Dockerfile
+    container_name: cs79-ml-service
+    ports:
+      - "5485:5000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=interactivedashboard_cs79-1
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=cs79dashboard
+      - RABBITMQ_PASS=interactivedashboard_cs79-1
+      - RABBITMQ_VHOST=cs79-health
+      - MODEL_PATH=/app/models
+      - FLASK_ENV=production
+    volumes:
+      - ./ml-service/models:/app/models:ro
+    depends_on:
+      - redis
+      - rabbitmq
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5485/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - cs79-network
+    restart: unless-stopped
+
+  frontend:
+    build: 
+      context: ./dashboard-frontend
+      dockerfile: Dockerfile
+      target: production
+    container_name: cs79-frontend
+    ports:
+      - "5486:80"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:5484
+      - VITE_WS_URL=ws://localhost:5484/ws
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5486"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - cs79-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+
+networks:
+  cs79-network:
+    driver: bridge

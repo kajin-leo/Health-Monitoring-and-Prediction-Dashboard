@@ -1,0 +1,74 @@
+name: cs79-interactive-dashboard-server-dev
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: cs79-postgres
+    environment:
+      - POSTGRES_DB=cs79-dashboard
+      - POSTGRES_USER=cs79dashboard
+      - POSTGRES_PASSWORD=interactivedashboard_cs79-1
+    ports:
+      - "5480:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cs79dashboard -d cs79-dashboard"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - cs79-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: cs79-redis
+    command: redis-server --appendonly yes --requirepass interactivedashboard_cs79-1
+    ports:
+      - "5481:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "interactivedashboard_cs79-1", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - cs79-network
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: cs79-rabbitmq
+    hostname: cs79-rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=cs79dashboard
+      - RABBITMQ_DEFAULT_PASS=interactivedashboard_cs79-1
+      - RABBITMQ_DEFAULT_VHOST=cs79-health
+    ports:
+      - "5482:5672"    # AMQP Port
+      - "5483:15672"   # Management Portal
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - cs79-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+
+networks:
+  cs79-network:
+    driver: bridge

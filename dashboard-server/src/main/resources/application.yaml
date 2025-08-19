@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: cs79-health-monitoring-backend
+  
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5480/cs79-dashboard}
+    username: ${SPRING_DATASOURCE_USERNAME:cs79dashboard}
+    password: ${SPRING_DATASOURCE_PASSWORD:interactivedashboard_cs79-1}
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: ${HIBERNATE_DDL_AUTO:update}
+    show-sql: true
+  
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:5481}
+      password: ${SPRING_DATA_REDIS_PASSWORD:interactivedashboard_cs79-1}
+  
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5482}
+    username: ${SPRING_RABBITMQ_USERNAME:cs79dashboard}
+    password: ${SPRING_RABBITMQ_PASSWORD:interactivedashboard_cs79-1}
+    virtual-host: ${SPRING_RABBITMQ_VIRTUAL_HOST:cs79-health}
+
+server:
+  port: ${SERVER_PORT:8080}
