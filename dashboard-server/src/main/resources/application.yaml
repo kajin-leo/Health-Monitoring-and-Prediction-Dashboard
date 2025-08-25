@@ -26,8 +26,17 @@ spring:
     password: ${SPRING_RABBITMQ_PASSWORD:interactivedashboard_cs79-1}
     virtual-host: ${SPRING_RABBITMQ_VIRTUAL_HOST:cs79-health}
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
+
 server:
   port: ${SERVER_PORT:5484}
+  tomcat:
+    max-swallow-size: 100MB
+    max-http-form-post-size: 100MB
+    max-part-count: 1000
 
 jwt:
   secret: ${JWT_SECRET:1nteractive-dashb0ard-s1mulating-phys1cal-activ1ty-changes-and-predicting-health-0utcomes}
