@@ -87,6 +87,10 @@ public class BatchImportController {
                 return null;
             });
 
+            while(batchImportService.getProgress(jobId) == null) {
+                Thread.sleep(500);
+            }
+
             return ResponseEntity.ok(jobId);
         } catch (Exception e) {
             logger.error("Error importing Individual Attributes: " + e.getMessage() + e.getStackTrace());
@@ -167,6 +171,10 @@ public class BatchImportController {
 
                 return null;
             });
+
+            while(batchImportService.getProgress(jobId) == null) {
+                Thread.sleep(500);
+            }
 
             return ResponseEntity.ok(jobId);
         } catch (Exception e) {
