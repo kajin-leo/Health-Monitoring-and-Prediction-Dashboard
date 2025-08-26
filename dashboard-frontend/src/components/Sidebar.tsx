@@ -1,9 +1,12 @@
 import { Button } from '@heroui/react'
 import { Cog, Gauge, CircleQuestionMark, ChartLine } from 'lucide-react'
 import SidebarMenuItem from './SidebarMenuItem'
-import { useState, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import SideBarUserIndicator from './SidebarUserIndicator'
+import { apiClient } from '../service/axios'
+import Logo from '../assets/豹豹Logo.svg'
+import { useUser } from '../context/UserContext'
 
 const sidebarData = {
     navMain: [
@@ -32,37 +35,51 @@ const sidebarData = {
     ]
 }
 
-function SideBar({className, ...props} : {className?: string, props?: React.ReactNode}) {
-    const [currentSelection, setCurrentSelection] = useState('');
+function SideBar({ className, ...props }: { className?: string, props?: React.ReactNode }) {
+    const navigate = useNavigate();
+    const { user, loading, error } = useUser();
+
     const location = useLocation();
-    
+
+    if (loading)
+        return (<div>Loading...</div>);
+
+    if (error)
+        return (<div>Error:{error}</div>);
+
+    // console.log(user);
+
     const isItemSelected = (itemUrl: string) => {
         return location.pathname === itemUrl;
     };
 
-    return(
-    <div id='sidebar-container' className={`w-full h-full flex flex-col justify-between ${className || ''}`}>
-        <div id='header-area' className='flex flex-col gap-5'>
-            <div className='h-20 p-5'>
-                <h1>
-                    Here is icon
-                </h1>
+    return (
+        <div id='sidebar-container' className={`w-full h-full flex flex-col justify-between ${className || ''}`}>
+            <div id='header-area' className='flex flex-col gap-5'>
+                <a onClick={()=>{navigate('/')}}>
+                    <div className='h-20 p-5 flex items-center gap-2 cursor-pointer'>
+                        <img src={Logo} className='h-full' />
+                        <h1 className='font-bold select-none text-2xl text-transparent bg-gradient-to-br from-slate-400 to-slate-500 bg-clip-text'>
+                            CS79-1
+                        </h1>
+                    </div>
+                </a>
+
+                <div id='nav-main' className='flex flex-col gap-1'>
+                    {sidebarData.navMain.map((item) => (
+                        <SidebarMenuItem item={item} key={item.title} isSelected={isItemSelected(item.url)} />
+                    ))}
+                </div>
             </div>
-            <div id='nav-main' className='flex flex-col gap-1'>
-                {sidebarData.navMain.map((item) => (
-                    <SidebarMenuItem item={item} key={item.title} isSelected={isItemSelected(item.url)}/>
-                ))}
+            <div id='bottom-area' className='flex flex-col gap-5'>
+                <div id='bottom-navigate' className='flex flex-col gap-1'>
+                    {sidebarData.navBottoms.map((item) => (
+                        <SidebarMenuItem item={item} key={item.title} isSelected={isItemSelected(item.url)} />
+                    ))}
+                </div>
+                <SideBarUserIndicator username={user ? `${user.firstName} ${user.lastName}` : ''} />
             </div>
         </div>
-        <div id='bottom-area' className='flex flex-col gap-5'>
-            <div id='bottom-navigate' className='flex flex-col gap-1'>
-                {sidebarData.navBottoms.map((item) => (
-                    <SidebarMenuItem item={item} key={item.title} isSelected={isItemSelected(item.url)}/>
-                ))}
-            </div>
-            <SideBarUserIndicator />
-        </div>
-    </div>
     );
 }
 

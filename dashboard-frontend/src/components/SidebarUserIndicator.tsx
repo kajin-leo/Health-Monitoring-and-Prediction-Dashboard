@@ -1,6 +1,8 @@
 import { Avatar, AvatarIcon } from "@heroui/react"
 
 const SideBarUserIndicator = ({ username, userAvatarUrl, ...props }: { username?: string, userAvatarUrl?: string, props?: React.ReactNode }) => {
+    
+    
     return (
         <div className="w-full h-max-[40px] m-2 flex gap-3 items-end">
             <div className='aspect-square'>
@@ -14,7 +16,7 @@ const SideBarUserIndicator = ({ username, userAvatarUrl, ...props }: { username?
                 <h2 className="text-black/70 text-sm">
                     Hello,
                 </h2>
-                <h1>
+                <h1 className="text-medium">
                     {username || 'Jane Doe'}
                 </h1>
             </div>
