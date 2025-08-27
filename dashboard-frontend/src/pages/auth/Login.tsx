@@ -56,7 +56,7 @@ const Login = () => {
             e.preventDefault();
             handleLogin();
         }}>
-            <div className="bg-white/80 backdrop-blur-xl outline-1 outline-white/20 flex flex-col items-center gap-4 rounded-3xl p-4 min-w-80 shadow-xl">
+            <div className="bg-white/80 backdrop-blur-xl outline-1 outline-white/20 flex flex-col items-center gap-4 rounded-3xl p-4 min-w-80 shadow-xl select-none">
             <div className='flex flex-col items-center my-2'>
                 <img src={Logo} className='w-15' />
                 <h1 className='text-2xl font-semibold'>Login</h1>
