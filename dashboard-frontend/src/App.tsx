@@ -16,7 +16,7 @@ function ClientLayout({ children }) {
 
     if (loading) {
         return (
-            <div className="fixed w-full h-full bg-gradient-to-br from-sky-50 to-blue-100 flex items-center py-2">
+            <div className="fixed w-full h-full bg-conic from-blue-100 via-40% via-violet-50 to-blue-100 blur-2xl brightness-90 saturate-200 flex items-center py-2">
                 <div className='w-full h-full bg-white/20 backdrop-blur-3xl flex items-center justify-center'>
                     <div>
                         <CircularProgress label="Loading..." />
@@ -27,11 +27,16 @@ function ClientLayout({ children }) {
     }
 
     return (
-        <div className="fixed w-full h-full flex gap-4 p-4">
+        <div className="fixed w-full h-full flex">
             <div className='absolute -z-100 w-full h-full bg-conic from-blue-100 via-40% via-violet-50 to-blue-100 blur-2xl brightness-90 saturate-200' />
-            <SideBar className='max-w-[250px]' />
-            <div id='dashboard' className='w-full h-full'>
-                {children}
+            <div className='w-[250px] m-4 mr-2 flex-shrink-0'>
+                <SideBar className='w-full' />
+            </div>
+            <div id='dashboard' className='flex-1 overflow-visible'>
+                <div className='w-full h-full'>
+                    {children}
+                </div>
+                
             </div>
         </div>
     )

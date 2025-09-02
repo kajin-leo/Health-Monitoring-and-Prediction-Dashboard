@@ -4,29 +4,37 @@ import DataAcknowledge from '../../components/DashboardCardContent/DataAcknowled
 
 const Home = () => {
     return(
-        <div className='w-full h-full grid grid-cols-2 grid-rows-3 md:grid-cols-3 lg:grid-cols-3 gap-4 col-span-2 row-span-3 '>
-            <DashboardCard id='avg daily intake' className='text-4xl font-light md:col-span-2'>
+        <div className='w-full h-full py-4 grid grid-cols-1 auto-rows-[calc((100%-var(--spacing)*8)/3)] md:grid-cols-6 lg:grid-cols-12 gap-4 col-span-2 row-span-3 overflow-y-scroll pl-2 pr-4'>
+            <DashboardCard id='avg daily intake' className='text-4xl font-light md:col-span-2 lg:col-span-4'>
                 Intake
             </DashboardCard>
 
-            <DashboardCard id='percentages'>
+            <DashboardCard id='percentages' className='md:col-span-4 lg:col-span-4'>
                 Body Composition
             </DashboardCard>
 
-            <DashboardCard id='Basic' className='row-span-2'>
+            <DashboardCard id='Basic' className='row-span-2 md:col-span-2 lg:col-span-4'>
                 BMI
             </DashboardCard>
 
-            <DashboardCard id='wlgr wlgx' className='md:col-span-2'>
+            <DashboardCard id='wlgr wlgx' className='md:col-span-2 lg:col-span-5'>
                 WLGR & WLGX
             </DashboardCard>
 
-            <DashboardCard id='sleeping duration'>
+            <DashboardCard id='sleeping duration' className='md:col-span-2 lg:col-span-3'>
                 Sleeping
             </DashboardCard>
 
-            <DashboardCard id='data acknowledge'>
+            <DashboardCard id='lsmz' className='md:col-span-2 lg:col-span-7'>
                 <DataAcknowledge />
+            </DashboardCard>
+
+            <DashboardCard id='metrics' className='md:col-span-2 lg:col-span-5'>
+
+            </DashboardCard>
+
+            <DashboardCard>
+
             </DashboardCard>
         </div>
     )
