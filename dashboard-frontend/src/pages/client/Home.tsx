@@ -1,6 +1,6 @@
 import {Button, Card, CardBody, CardFooter} from '@heroui/react'
 import DashboardCard from '../../components/DashboardCard';
-import DataAcknowledge from '../../components/DashboardCardContent/DataAcknowledge';
+import WeightMetrics from '../../components/DashboardCardContent/WeightMetrics/WeightMetrics';
 
 const Home = () => {
     return(
@@ -26,7 +26,7 @@ const Home = () => {
             </DashboardCard>
 
             <DashboardCard id='lsmz' className='md:col-span-2 lg:col-span-7'>
-                <DataAcknowledge />
+                <WeightMetrics />
             </DashboardCard>
 
             <DashboardCard id='metrics' className='md:col-span-2 lg:col-span-5'>
