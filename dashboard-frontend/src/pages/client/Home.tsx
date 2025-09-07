@@ -3,6 +3,7 @@ import DashboardCard from '../../components/DashboardCard';
 import WeightMetrics from '../../components/DashboardCardContent/WeightMetrics/WeightMetrics';
 import SleepGauges from "../../components/DashboardCardContent/Sleep/SleepGauges.tsx";
 import FoodIntake from "../../components/DashboardCardContent/FoodIntake/FoodIntake.tsx";
+import WlgrWlgxCards from "../../components/DashboardCardContent/WlgrWlgx/WlgrWlgxCards.tsx";
 import BMI from "../../components/BmiCard.tsx"
 import FatMuscleWaterCard from "../../components/DashboardCardContent/Body/FatMuscleWaterCard.tsx";
 const Home = () => {
@@ -21,7 +22,7 @@ const Home = () => {
             </DashboardCard>
 
             <DashboardCard id='wlgr wlgx' className='md:col-span-2 lg:col-span-5'>
-                WLGR & WLGX
+                <WlgrWlgxCards />
             </DashboardCard>
 
             <DashboardCard id='sleeping duration' className='md:col-span-2 lg:col-span-3'>

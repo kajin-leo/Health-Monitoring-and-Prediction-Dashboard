@@ -187,7 +187,11 @@ public class StaticInfoService {
         double fat = bc.getFatPercentage();
         double muscle = bc.getMuscleAmount();
         double water = bc.getWaterPercentage();
-
+        double wlgr625 = bc.getWlgr625();
+        double wlgr50 = bc.getWlgr50();
+        double wlgx625 = bc.getWlgx625();
+        double wlgx50 = bc.getWlgx50();
+        
         double sum = fat + muscle + water;
         if (sum > 100.0 && sum > 0) {
             fat    = fat / sum * 100.0;
@@ -199,6 +203,10 @@ public class StaticInfoService {
         dto.setFatPct(fat);
         dto.setMusclePct(muscle);
         dto.setWaterPct(water);
+        dto.setWlgr625(wlgr625);
+        dto.setWlgr50(wlgr50);
+        dto.setWlgx625(wlgx625);
+        dto.setWlgx50(wlgx50);
 
         return dto;
     }
@@ -206,69 +214,68 @@ public class StaticInfoService {
 
 
 
-@Service
-public class FoodIntakeService {
+    @Service
+    public class FoodIntakeService {
 
-    @Autowired
-    private WeeklyIntakeRepository weeklyIntakeRepository;
-    private static final double REC_ENERGY_PCT = 50.0;
-    private static final double REC_PROTECTIVE_PCT = 35.0;
-    private static final double REC_BODY_PCT = 15.0;
+        @Autowired
+        private WeeklyIntakeRepository weeklyIntakeRepository;
+        private static final double REC_ENERGY_PCT = 50.0;
+        private static final double REC_PROTECTIVE_PCT = 35.0;
+        private static final double REC_BODY_PCT = 15.0;
 
-    public double getFoodIntakeEnergy(long userId) {
-        return weeklyIntakeRepository.findEnergyByUserId(userId).orElse(0.0);
+        public double getFoodIntakeEnergy(long userId) {
+            return weeklyIntakeRepository.findEnergyByUserId(userId).orElse(0.0);
+        }
+
+        public double getFoodIntakeProtective(long userId) {
+            return weeklyIntakeRepository.findProtectiveByUserId(userId).orElse(0.0);
+        }
+
+        public double getFoodIntakeBodyBuilding(long userId) {
+            return weeklyIntakeRepository.findBodyBuildingByUserId(userId).orElse(0.0);
+        }
+
+        public FoodIntakeResultDto calculateFoodIntake(long userId) {
+            double energy = getFoodIntakeEnergy(userId);
+            double protective = getFoodIntakeProtective(userId);
+            double bodyBuilding = getFoodIntakeBodyBuilding(userId);
+
+            double total = energy + protective + bodyBuilding;
+
+            double recEnergy = (REC_ENERGY_PCT / 100.0) * total;
+            double recProtective = (REC_PROTECTIVE_PCT / 100.0) * total;
+            double recBody = (REC_BODY_PCT / 100.0) * total;
+
+            // % of recommendation achieved (actual / recommended * 100)
+            double pctEnergy = recEnergy > 0 ? (energy / recEnergy) * 100.0 : 0.0;
+            double pctProtective = recProtective > 0 ? (protective / recProtective) * 100.0 : 0.0;
+            double pctBody = recBody > 0 ? (bodyBuilding / recBody) * 100.0 : 0.0;
+
+            double dailyPctEnergy = total > 0 ? (energy / total) * 100.0 : 0.0;
+            double dailyPctProtective = total > 0 ? (protective / total) * 100.0 : 0.0;
+            double dailyPctBody = total > 0 ? (bodyBuilding / total) * 100.0 : 0.0;
+
+            FoodIntakeResultDto dto = new FoodIntakeResultDto();
+            dto.setEnergy(energy);
+            dto.setProtective(protective);
+            dto.setBodyBuilding(bodyBuilding);
+
+            dto.setRecEnergy(recEnergy);
+            dto.setRecProtective(recProtective);
+            dto.setRecBodyBuilding(recBody);
+
+            dto.setPctEnergy(pctEnergy);
+            dto.setPctProtective(pctProtective);
+            dto.setPctBodyBuilding(pctBody);
+
+            dto.setDailyPctEnergy(dailyPctEnergy);
+            dto.setDailyPctProtective(dailyPctProtective);
+            dto.setDailyPctBodyBuilding(dailyPctBody);
+
+            return dto;
+        }
+
     }
-
-    public double getFoodIntakeProtective(long userId) {
-        return weeklyIntakeRepository.findProtectiveByUserId(userId).orElse(0.0);
-    }
-
-    public double getFoodIntakeBodyBuilding(long userId) {
-        return weeklyIntakeRepository.findBodyBuildingByUserId(userId).orElse(0.0);
-    }
-
-    public FoodIntakeResultDto calculateFoodIntake(long userId) {
-        double energy = getFoodIntakeEnergy(userId);
-        double protective = getFoodIntakeProtective(userId);
-        double bodyBuilding = getFoodIntakeBodyBuilding(userId);
-
-        double total = energy + protective + bodyBuilding;
-
-        double recEnergy = (REC_ENERGY_PCT / 100.0) * total;
-        double recProtective = (REC_PROTECTIVE_PCT / 100.0) * total;
-        double recBody = (REC_BODY_PCT / 100.0) * total;
-
-        // % of recommendation achieved (actual / recommended * 100)
-        double pctEnergy = recEnergy > 0 ? (energy / recEnergy) * 100.0 : 0.0;
-        double pctProtective = recProtective > 0 ? (protective / recProtective) * 100.0 : 0.0;
-        double pctBody = recBody > 0 ? (bodyBuilding / recBody) * 100.0 : 0.0;
-
-        double dailyPctEnergy = total > 0 ? (energy / total) * 100.0 : 0.0;
-        double dailyPctProtective = total > 0 ? (protective / total) * 100.0 : 0.0;
-        double dailyPctBody = total > 0 ? (bodyBuilding / total) * 100.0 : 0.0;
-
-        FoodIntakeResultDto dto = new FoodIntakeResultDto();
-        dto.setEnergy(energy);
-        dto.setProtective(protective);
-        dto.setBodyBuilding(bodyBuilding);
-
-        dto.setRecEnergy(recEnergy);
-        dto.setRecProtective(recProtective);
-        dto.setRecBodyBuilding(recBody);
-
-        dto.setPctEnergy(pctEnergy);
-        dto.setPctProtective(pctProtective);
-        dto.setPctBodyBuilding(pctBody);
-
-        dto.setDailyPctEnergy(dailyPctEnergy);
-        dto.setDailyPctProtective(dailyPctProtective);
-        dto.setDailyPctBodyBuilding(dailyPctBody);
-
-        return dto;
-    }
-
-
-}
 
 
 

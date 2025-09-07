@@ -10,6 +10,9 @@ import com.cs79_1.interactive_dashboard.Security.SecurityUtils;
 import com.cs79_1.interactive_dashboard.Service.StaticInfoService;
 import com.cs79_1.interactive_dashboard.Service.StaticInfoService.FoodIntakeService;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -96,6 +99,22 @@ public class StaticInfoController {
         BodyCompositionSummary dto = staticInfoService.getBodyCompositionSummary(userId);
         return ResponseEntity.ok(dto);
     }
+
+    @GetMapping("/body-composition/wlgr-wlgx")
+    public ResponseEntity<Map<String, Double>> getWlgrWlgx() {
+        long userId = SecurityUtils.getCurrentUserId();
+        BodyCompositionSummary dto = staticInfoService.getBodyCompositionSummary(userId);
+
+        Map<String, Double> result = new HashMap<>();
+        result.put("wlgr625", dto.getWlgr625());
+        result.put("wlgr50", dto.getWlgr50());
+        result.put("wlgx625", dto.getWlgx625());
+        result.put("wlgx50", dto.getWlgx50());
+
+        return ResponseEntity.ok(result);
+}
+
+    
     
     @RestController
     @RequestMapping("/api/food-intake")
