@@ -152,7 +152,7 @@ const WeightMetrics = () => {
     return (
         <div className='w-full h-full justify-between flex flex-col overflow-visible'>
             <div className='flex justify-between items-baseline'>
-                <h1 className="text-2xl mt-2 ml-2 flex-shrink-0">
+                <h1 className="opacity-70 bg-blue-600 rounded-lg text-white px-2 text-xl font-light font-[Outfit] flex-shrink-0">
                     Weight Status
                 </h1>
                 <div className='flex gap-2 text-sm bg-white p-1 px-2 rounded-full shadow-md/20'>
