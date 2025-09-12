@@ -50,6 +50,8 @@ function SideBar({ className, ...props }: { className?: string, props?: React.Re
         return (<div>Loading...</div>);
 
     if (error)
+        localStorage.clear();
+        navigate('/login');
         return (<div>Error:{error}</div>);
 
     // console.log(user);
