@@ -48,7 +48,8 @@ def model_factory(config, data):
                                                         num_classes=num_labels,
                                                         dropout=config['dropout'], pos_encoding=config['pos_encoding'],
                                                         activation=config['activation'],
-                                                        norm=config['normalization_layer'], freeze=config['freeze'])
+                                                        norm=config['normalization_layer'], freeze=config['freeze'],
+                                                        static_features_dim=config['static'], pooling=config['pooling'])
     else:
         raise ValueError("Model class for task '{}' does not exist".format(task))
 
@@ -247,6 +248,72 @@ class TSTransformerEncoder(nn.Module):
         return output
 
 
+# class TSTransformerEncoderClassiregressor(nn.Module):
+#     """
+#     Simplest classifier/regressor. Can be either regressor or classifier because the output does not include
+#     softmax. Concatenates final layer embeddings and uses 0s to ignore padding embeddings in final output layer.
+#     """
+
+#     def __init__(self, feat_dim, max_len, d_model, n_heads, num_layers, dim_feedforward, num_classes,
+#                  dropout=0.1, pos_encoding='fixed', activation='gelu', norm='BatchNorm', freeze=False):
+#         super(TSTransformerEncoderClassiregressor, self).__init__()
+
+#         self.max_len = max_len
+#         self.d_model = d_model
+#         self.n_heads = n_heads
+
+#         self.project_inp = nn.Linear(feat_dim, d_model)
+#         self.pos_enc = get_pos_encoder(pos_encoding)(d_model, dropout=dropout*(1.0 - freeze), max_len=max_len)
+
+#         if norm == 'LayerNorm':
+#             encoder_layer = TransformerEncoderLayer(d_model, self.n_heads, dim_feedforward, dropout*(1.0 - freeze), activation=activation)
+#         else:
+#             encoder_layer = TransformerBatchNormEncoderLayer(d_model, self.n_heads, dim_feedforward, dropout*(1.0 - freeze), activation=activation)
+
+#         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers)
+
+#         self.act = _get_activation_fn(activation)
+
+#         self.dropout1 = nn.Dropout(dropout)
+
+#         self.feat_dim = feat_dim
+#         self.num_classes = num_classes
+#         self.output_layer = self.build_output_module(d_model, max_len, num_classes)
+
+#     def build_output_module(self, d_model, max_len, num_classes):
+#         output_layer = nn.Linear(d_model * max_len, num_classes)
+#         # no softmax (or log softmax), because CrossEntropyLoss does this internally. If probabilities are needed,
+#         # add F.log_softmax and use NLLoss
+#         return output_layer
+
+#     def forward(self, X, padding_masks):
+#         """
+#         Args:
+#             X: (batch_size, seq_length, feat_dim) torch tensor of masked features (input)
+#             padding_masks: (batch_size, seq_length) boolean tensor, 1 means keep vector at this position, 0 means padding
+#         Returns:
+#             output: (batch_size, num_classes)
+#         """
+
+#         # permute because pytorch convention for transformers is [seq_length, batch_size, feat_dim]. padding_masks [batch_size, feat_dim]
+#         inp = X.permute(1, 0, 2)
+#         inp = self.project_inp(inp) * math.sqrt(
+#             self.d_model)  # [seq_length, batch_size, d_model] project input vectors to d_model dimensional space
+#         inp = self.pos_enc(inp)  # add positional encoding
+#         # NOTE: logic for padding masks is reversed to comply with definition in MultiHeadAttention, TransformerEncoderLayer
+#         output = self.transformer_encoder(inp, src_key_padding_mask=~padding_masks)  # (seq_length, batch_size, d_model)
+#         output = self.act(output)  # the output transformer encoder/decoder embeddings don't include non-linearity
+#         output = output.permute(1, 0, 2)  # (batch_size, seq_length, d_model)
+#         output = self.dropout1(output)
+
+#         # Output
+#         output = output * padding_masks.unsqueeze(-1)  # zero-out padding embeddings
+#         output = output.reshape(output.shape[0], -1)  # (batch_size, seq_length * d_model)
+#         output = self.output_layer(output)  # (batch_size, num_classes)
+
+#         return output
+    
+
 class TSTransformerEncoderClassiregressor(nn.Module):
     """
     Simplest classifier/regressor. Can be either regressor or classifier because the output does not include
@@ -254,7 +321,9 @@ class TSTransformerEncoderClassiregressor(nn.Module):
     """
 
     def __init__(self, feat_dim, max_len, d_model, n_heads, num_layers, dim_feedforward, num_classes,
-                 dropout=0.1, pos_encoding='fixed', activation='gelu', norm='BatchNorm', freeze=False):
+                 dropout=0.1, pos_encoding='fixed', activation='gelu', norm='BatchNorm', freeze=False,
+                 static_features_dim: int = 0,
+                 pooling: str = None):
         super(TSTransformerEncoderClassiregressor, self).__init__()
 
         self.max_len = max_len
@@ -279,17 +348,30 @@ class TSTransformerEncoderClassiregressor(nn.Module):
         self.num_classes = num_classes
         self.output_layer = self.build_output_module(d_model, max_len, num_classes)
 
+        # ### ADDED
+        self.static_features_dim = static_features_dim
+        self.pooling = pooling
+        if (self.pooling == 'mean') or (self.static_features_dim > 0):
+            if self.pooling == 'mean':
+                in_dim = d_model
+            else:
+                in_dim = d_model * max_len
+            if self.static_features_dim > 0:
+                in_dim += self.static_features_dim
+            self.output_layer_newpath = nn.Linear(in_dim, num_classes)
+
     def build_output_module(self, d_model, max_len, num_classes):
         output_layer = nn.Linear(d_model * max_len, num_classes)
         # no softmax (or log softmax), because CrossEntropyLoss does this internally. If probabilities are needed,
         # add F.log_softmax and use NLLoss
         return output_layer
 
-    def forward(self, X, padding_masks):
+    def forward(self, X, padding_masks, static_features=None):  # ### ADDED: 新增可选入参 static_features
         """
         Args:
             X: (batch_size, seq_length, feat_dim) torch tensor of masked features (input)
             padding_masks: (batch_size, seq_length) boolean tensor, 1 means keep vector at this position, 0 means padding
+            static_features: (batch_size, S)  可选，S=static_features_dim（如 age+sex=2）
         Returns:
             output: (batch_size, num_classes)
         """
@@ -305,10 +387,30 @@ class TSTransformerEncoderClassiregressor(nn.Module):
         output = output.permute(1, 0, 2)  # (batch_size, seq_length, d_model)
         output = self.dropout1(output)
 
-        # Output
-        output = output * padding_masks.unsqueeze(-1)  # zero-out padding embeddings
-        output = output.reshape(output.shape[0], -1)  # (batch_size, seq_length * d_model)
-        output = self.output_layer(output)  # (batch_size, num_classes)
+        if (self.pooling is None) and (self.static_features_dim == 0):
+            # Output
+            output = output * padding_masks.unsqueeze(-1)  # zero-out padding embeddings
+            output = output.reshape(output.shape[0], -1)  # (batch_size, seq_length * d_model)
+            output = self.output_layer(output)  # (batch_size, num_classes)
+            return output
 
+        # ### ADDED
+        if self.pooling == 'mean':
+            valid = padding_masks.float().unsqueeze(-1)           # [B, T, 1]
+            summed = (output * valid).sum(dim=1)                  # [B, d_model]
+            count = valid.sum(dim=1).clamp(min=1e-6)              # [B, 1]
+            feat_for_head = summed / count                        # [B, d_model]
+        else:
+            out_flat = (output * padding_masks.unsqueeze(-1)).reshape(output.shape[0], -1)
+            feat_for_head = out_flat
+
+        if self.static_features_dim > 0:
+            if static_features is None:
+                raise ValueError("static_features can't be null，expected shape [B, static_features_dim]")
+            if (static_features.dim() != 2) or (static_features.size(1) != self.static_features_dim):
+                raise ValueError(f"static_features expected shape should be [B, {self.static_features_dim}]，but get {list(static_features.shape)}")
+            feat_for_head = torch.cat([feat_for_head, static_features], dim=-1)  # [B, * + S]
+
+        output = self.output_layer_newpath(feat_for_head)  # (batch_size, num_classes)
         return output
 
