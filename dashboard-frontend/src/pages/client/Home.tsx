@@ -30,11 +30,11 @@ const Home = () => {
                 <SleepGauges />
             </DashboardCard>
 
-            <DashboardCard id='lsmz' className='md:col-span-2 lg:col-span-5'>
+            <DashboardCard id='lsmz' className='md:col-span-2 lg:col-span-6'>
                 <WeightMetrics />
             </DashboardCard>
 
-            <DashboardCard id='workout' className='md:col-span-2 lg:col-span-7'>
+            <DashboardCard id='workout' className='md:col-span-2 lg:col-span-6'>
                 <WorkoutOverview />
             </DashboardCard>
 
