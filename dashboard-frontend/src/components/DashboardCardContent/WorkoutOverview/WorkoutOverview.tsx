@@ -1,8 +1,9 @@
-import { Button } from "@heroui/react";
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import { Chart } from "chart.js/auto";
 import { use, useEffect, useRef, useState } from "react";
 import { apiClient } from "../../../service/axios";
 import { set } from "mongoose";
+import WorkoutDetails from "../../ModalPages/WorkoutDetails/WorkoutDetails";
 
 type Workout = {
     dayOfWeek: string;
@@ -10,7 +11,7 @@ type Workout = {
     light: number;
 }
 
-const WorkoutOverviewChart = ({data, showTooltips, className} : {data: Workout[], showTooltips? : boolean, className?:string}) => {
+const WorkoutOverviewChart = ({ data, showTooltips, className }: { data: Workout[], showTooltips?: boolean, className?: string }) => {
     const chartRef = useRef<HTMLCanvasElement>(null);
     const chartInstance = useRef<Chart | null>(null);
 
@@ -86,7 +87,7 @@ const WorkoutOverviewChart = ({data, showTooltips, className} : {data: Workout[]
     );
 }
 
-const WorkoutOverview = ({mock}: {mock?: Workout[]}) => {
+const WorkoutOverview = ({ mock }: { mock?: Workout[] }) => {
     const [workoutData, setWorkoutData] = useState<Workout[]>([]);
 
     const fetchWorkoutData = async () => {
@@ -100,17 +101,31 @@ const WorkoutOverview = ({mock}: {mock?: Workout[]}) => {
     };
 
     useEffect(() => {
-        if(!mock) fetchWorkoutData();
+        if (!mock) fetchWorkoutData();
         else setWorkoutData(mock);
     }, [mock]);
 
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
     return (
-        <div className='w-full h-full justify-between flex flex-col overflow-visible'>
-            <h1 className="w-fit opacity-70 bg-green-600 rounded-lg text-white px-2 text-xl font-light font-[Outfit] flex-shrink-0">
-                Workout Overview
-            </h1>
-            <WorkoutOverviewChart data={workoutData} showTooltips={true} />
-        </div>
+        <>
+            <div className='w-full h-full justify-between flex flex-col overflow-visible' onClick={onOpen}>
+                <h1 className="w-fit opacity-70 bg-green-600 rounded-lg text-white px-2 text-xl font-light font-[Outfit] flex-shrink-0">
+                    Activities Overview
+                </h1>
+                <WorkoutOverviewChart data={workoutData} showTooltips={true} />
+            </div>
+            <Modal isOpen={isOpen} onClose={onClose} size="5xl">
+                <ModalContent>
+                    <ModalHeader>
+                        Activities
+                    </ModalHeader>
+                    <ModalBody className="h-fit">
+                        <WorkoutDetails />
+                    </ModalBody>
+                </ModalContent>
+            </Modal>
+        </>
     );
 }
 
