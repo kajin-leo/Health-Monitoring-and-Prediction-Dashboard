@@ -1,5 +1,7 @@
 package com.cs79_1.interactive_dashboard.Service;
 
+import com.cs79_1.interactive_dashboard.DTO.BodyMetricsSummaryDTO;
+import com.cs79_1.interactive_dashboard.Entity.BodyMetrics;
 import com.cs79_1.interactive_dashboard.Entity.User;
 import com.cs79_1.interactive_dashboard.Entity.BodyComposition;
 import com.cs79_1.interactive_dashboard.Repository.BodyMetricsRepository;
@@ -33,6 +35,7 @@ public class StaticInfoService {
 
     @Autowired
     private BodyCompositionRepository bodyCompositionRepository;
+
 
     private final static Logger logger = LoggerFactory.getLogger(StaticInfoService.class);
 
@@ -179,7 +182,7 @@ public class StaticInfoService {
         return loadSleepRow(userId).getTotalSleepingDuration();
     }
     public BodyCompositionSummary getBodyCompositionSummary(long userId) {
-        BodyComposition bc = bodyCompositionRepository.findByUser_Id(userId)
+        BodyComposition bc = bodyCompositionRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("No body composition for user " + userId));
 
         double fat = bc.getFatPercentage();
@@ -206,6 +209,19 @@ public class StaticInfoService {
         dto.setWlgx625(wlgx625);
         dto.setWlgx50(wlgx50);
 
+        return dto;
+    }
+
+    public BodyMetricsSummaryDTO getBodyMetricsSummary(long userId) {
+        BodyMetrics bodyMetrics = bodyMetricsRepository.findByUserId(userId);
+        BodyComposition bodyComposition = bodyCompositionRepository.findByUserId(userId).orElseThrow();
+
+        double height = bodyMetrics.getHeight();
+        double weight = bodyMetrics.getWeight();
+        double waistSize = bodyMetrics.getWaistSize();
+        double bmi = bodyComposition.getBMI();
+
+        BodyMetricsSummaryDTO dto = new BodyMetricsSummaryDTO(height, weight, waistSize, bmi);
         return dto;
     }
 
