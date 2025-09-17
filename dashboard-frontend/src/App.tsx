@@ -6,7 +6,7 @@ import ClientHome from './pages/client/Home'
 import ChartDemo from './pages/client/ChartDemo'
 import OpsHome from './pages/ops/Home'
 import Login from './pages/auth/Login'
-import BMI from './pages/client/BmiDemo'
+import BmiDemo from './pages/client/BmiDemo'
 import Unauthorized from './pages/auth/Unauthorized'
 import { UserProvider } from './context/UserContext'
 import { useUser } from './context/UserContext'
@@ -80,7 +80,7 @@ function App() {
 
                 <Route path='/bmi' element={
                     <ClientLayout>
-                        <BMI />
+                        <BmiDemo />
                     </ClientLayout>
                 } />
 

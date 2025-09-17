@@ -7,9 +7,9 @@ function bmiToAngle(bmi: number) {
   return -85 + t * 170;
 }
 
-type Props = { bmi: number; width?: number };
+type Props = { bmi: number; waist: number; height: number; weight: number; width?: number; showLabels?: boolean; };
 
-const BmiCard: React.FC<Props> = ({ bmi, width = 420 }) => {
+const BmiCard: React.FC<Props> = ({ bmi, waist, height, weight, width = 420 }) => {
   const angle = bmiToAngle(bmi);
 
   return (
@@ -104,7 +104,7 @@ const BmiCard: React.FC<Props> = ({ bmi, width = 420 }) => {
       {/* 文案：与图形分离 */}
       <text x="360" y="420" textAnchor="middle" fontFamily="Inter, Arial, Helvetica, sans-serif"
             fontSize="80" fontWeight="900" fill="#1f2a44">
-        BMI
+        BMI={bmi}
       </text>
       <text x="360" y="482" textAnchor="middle" fontFamily="Inter, Arial, Helvetica, sans-serif"
             fontSize="64" fontWeight="900" fill="#1f2a44" letterSpacing="2">
@@ -127,7 +127,6 @@ const BmiCard: React.FC<Props> = ({ bmi, width = 420 }) => {
 
         {/* 腰部软尺 + 标签 */}
         <g>
-          <rect x="250" y="690" width="220" height="44" rx="22" fill="#ffffff" />
           <rect x="250" y="690" width="220" height="44" rx="22" fill="none" stroke="#1f2a44" strokeWidth="8"/>
           <g stroke="#1f2a44" strokeWidth="4">
             {Array.from({ length: 23 }).map((_, i) => (
@@ -137,7 +136,7 @@ const BmiCard: React.FC<Props> = ({ bmi, width = 420 }) => {
           <rect x="485" y="686" width="130" height="50" rx="20" fill="#ffffff" />
           <text x="550" y="720" textAnchor="middle"
                 fontFamily="Inter, Arial, Helvetica, sans-serif" fontSize="34" fontWeight="900" fill="#1f2a44">
-            Waist
+            Waist={waist}
           </text>
         </g>
       </g>
@@ -149,7 +148,7 @@ const BmiCard: React.FC<Props> = ({ bmi, width = 420 }) => {
         <polyline points="110,895 90,860 110,870 130,860" fill="#1f2a44"/>
         <text x="74" y="670" transform="rotate(-90,74,670)" textAnchor="middle"
               fontFamily="Inter, Arial, Helvetica, sans-serif" fontSize="56" fontWeight="900" fill="#1f2a44">
-          Height
+          Height={height}
         </text>
       </g>
 
@@ -157,7 +156,7 @@ const BmiCard: React.FC<Props> = ({ bmi, width = 420 }) => {
       <ellipse cx="360" cy="910" rx="140" ry="24" fill="#9cc7eb" opacity="0.5"/>
       <text x="360" y="950" textAnchor="middle"
             fontFamily="Inter, Arial, Helvetica, sans-serif" fontSize="58" fontWeight="900" fill="#1f2a44">
-        Weight
+        Weight={weight}
       </text>
     </svg>
   );
