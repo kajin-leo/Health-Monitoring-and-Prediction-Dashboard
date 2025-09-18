@@ -6,7 +6,7 @@ import ClientHome from './pages/client/Home'
 import ChartDemo from './pages/client/ChartDemo'
 import OpsHome from './pages/ops/Home'
 import Login from './pages/auth/Login'
-import BMI from './pages/client/BmiDemo'
+import Simulation from './pages/client/Simulation'
 import Unauthorized from './pages/auth/Unauthorized'
 import { UserProvider } from './context/UserContext'
 import { useUser } from './context/UserContext'
@@ -78,9 +78,9 @@ function App() {
                     </ClientLayout>
                 } />
 
-                <Route path='/bmi' element={
+                <Route path='/simulate' element={
                     <ClientLayout>
-                        <BMI />
+                        <Simulation />
                     </ClientLayout>
                 } />
 

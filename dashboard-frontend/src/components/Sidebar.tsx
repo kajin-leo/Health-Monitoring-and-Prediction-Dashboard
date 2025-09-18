@@ -1,5 +1,6 @@
 import { Button, Listbox, ListboxItem, Popover, PopoverContent, PopoverTrigger, User } from '@heroui/react'
-import { Cog, Gauge, CircleQuestionMark, ChartLine, LogOut, SquareUser, BicepsFlexed } from 'lucide-react'
+import { Cog, Gauge, CircleQuestionMark, ChartLine, LogOut, SquareUser, BicepsFlexed, FlaskConical } from 'lucide-react'
+
 import SidebarMenuItem from './SidebarMenuItem'
 import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -21,9 +22,9 @@ const sidebarData = {
             url: '/chart-demo'
         },
         {
-            title: 'BMI',
-            icon: BicepsFlexed,
-            url: '/bmi'
+            title: 'Simulate',
+            icon: FlaskConical,
+            url: '/simulate'
         }
     ],
     navBottoms: [
