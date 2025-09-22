@@ -7,6 +7,12 @@ public class DailyWorkoutData {
     int MVPA;
     int Light;
 
+    public DailyWorkoutData(DayOfWeek dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
+        MVPA = 0;
+        Light = 0;
+    }
+
     public DailyWorkoutData(DayOfWeek dayOfWeek, int MVPA, int Light) {
         this.dayOfWeek = dayOfWeek;
         this.MVPA = MVPA;
@@ -37,6 +43,16 @@ public class DailyWorkoutData {
 
     public DailyWorkoutData setDayOfWeek(DayOfWeek dayOfWeek) {
         this.dayOfWeek = dayOfWeek;
+        return this;
+    }
+
+    public DailyWorkoutData divideMVPA(int divider) {
+        MVPA /= divider;
+        return this;
+    }
+
+    public DailyWorkoutData divideLight(int divider) {
+        Light /= divider;
         return this;
     }
 }
