@@ -10,7 +10,9 @@ const DashboardCard = ({ id, className, children, ...props }: { id?:string, clas
                 <div className="absolute z-30 opacity-30 w-full h-full border-1 rounded-2xl border-white pointer-events-none" />
                 <div className="absolute -z-40 opacity-60 w-full h-full bg-white" />
             </div>
-            {children}
+            <div id="Card Content" className="w-full h-full">
+                {children}
+            </div>
         </div>
     );
 }
