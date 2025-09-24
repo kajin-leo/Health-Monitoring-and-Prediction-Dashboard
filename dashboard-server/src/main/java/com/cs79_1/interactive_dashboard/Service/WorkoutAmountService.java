@@ -119,4 +119,70 @@ public class WorkoutAmountService {
 
         return timeOfDayDTO;
     }
+    public WorkoutHeatmapDTO getHeatmapFiltered(Long userId, boolean isWeekend) {
+        List<WorkoutAmount> workoutAmounts = getWorkoutAmountByUserIdAsc(userId);
+        WorkoutHeatmapDTO heatmapDTO = new WorkoutHeatmapDTO();
+
+        final int BIN_SIZE = 600;
+        final int MAX_SECONDS = 3600;
+
+        List<int[]> bins = new ArrayList<>();
+        for (int start = 0; start < MAX_SECONDS; start += BIN_SIZE) {
+            bins.add(new int[]{start, start + BIN_SIZE});
+        }
+
+        Map<Integer, Map<String, List<Integer>>> mvpaMap = new HashMap<>();
+        Map<Integer, Map<String, List<Integer>>> lightMap = new HashMap<>();
+
+        for (WorkoutAmount w : workoutAmounts) {
+            DayOfWeek day = w.getDateTime().getDayOfWeek();
+            boolean weekend = (day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY);
+
+            if (weekend != isWeekend) continue; // 只要 weekday 或 weekend
+
+            int hour = w.getHour();
+            int mvpa = w.getSumSecondsMVPA3();
+            int light = w.getSumSecondsLight3();
+
+            for (int[] bin : bins) {
+                String binLabel = bin[0] + "-" + bin[1];
+
+                if (mvpa >= bin[0] && mvpa < bin[1]) {
+                    mvpaMap.computeIfAbsent(hour, k -> new HashMap<>())
+                            .computeIfAbsent(binLabel, k -> new ArrayList<>())
+                            .add(mvpa);
+                }
+                if (light >= bin[0] && light < bin[1]) {
+                    lightMap.computeIfAbsent(hour, k -> new HashMap<>())
+                            .computeIfAbsent(binLabel, k -> new ArrayList<>())
+                            .add(light);
+                }
+            }
+        }
+
+        for (int hour = 0; hour < 24; hour++) {
+            for (int[] bin : bins) {
+                String binLabel = bin[0] + "-" + bin[1];
+
+                double mvpaAvg = mvpaMap.getOrDefault(hour, Map.of())
+                        .getOrDefault(binLabel, List.of())
+                        .stream().mapToInt(Integer::intValue).average().orElse(0);
+
+                double lightAvg = lightMap.getOrDefault(hour, Map.of())
+                        .getOrDefault(binLabel, List.of())
+                        .stream().mapToInt(Integer::intValue).average().orElse(0);
+
+                heatmapDTO.addData(hour, binLabel, mvpaAvg, lightAvg);
+            }
+        }
+        return heatmapDTO;
+    }
+
+    public WorkoutHeatmapDTO getHeatmapWeekdays(Long userId) {
+        return getHeatmapFiltered(userId, false);
+    }
+
+    public WorkoutHeatmapDTO getHeatmapWeekends(Long userId) {
+        return getHeatmapFiltered(userId, true);
+    }
 }

@@ -2,6 +2,7 @@ package com.cs79_1.interactive_dashboard.Controller;
 
 import com.cs79_1.interactive_dashboard.DTO.WorkoutDailyDTO;
 import com.cs79_1.interactive_dashboard.DTO.WorkoutTimeOfDayDTO;
+import com.cs79_1.interactive_dashboard.DTO.WorkoutHeatmapDTO;
 import com.cs79_1.interactive_dashboard.Security.SecurityUtils;
 import com.cs79_1.interactive_dashboard.Service.WorkoutAmountService;
 import org.slf4j.Logger;
@@ -68,4 +69,16 @@ public class WorkoutAmountController {
             return ResponseEntity.internalServerError().build();
         }
     }
+    @GetMapping("/heatmap/weekdays")
+    public ResponseEntity<WorkoutHeatmapDTO> getWeekdayHeatmap() {
+        long userId = SecurityUtils.getCurrentUserId();
+        return ResponseEntity.ok(workoutAmountService.getHeatmapWeekdays(userId));
+    }
+
+    @GetMapping("/heatmap/weekends")
+    public ResponseEntity<WorkoutHeatmapDTO> getWeekendHeatmap() {
+        long userId = SecurityUtils.getCurrentUserId();
+        return ResponseEntity.ok(workoutAmountService.getHeatmapWeekends(userId));
+    }
+
 }
