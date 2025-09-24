@@ -152,8 +152,8 @@ const WeightMetrics = () => {
     return (
         <div className='w-full h-full justify-between flex flex-col overflow-visible'>
             <div className='flex justify-between items-baseline'>
-                <h1 className="opacity-70 bg-blue-600 rounded-lg text-white px-2 text-xl font-light font-[Outfit] flex-shrink-0">
-                    Weight Status
+                <h1 className="w-fit opacity-100 rounded-lg text-gray-800 pl-1 text-lg tracking-tight font-bold font-[Nunito] min-h-10 flex-shrink-0">
+                    Weight Metrics
                 </h1>
                 <div className='flex gap-2 text-sm bg-white p-1 px-2 rounded-full shadow-md/20'>
                     <div className='flex items-center gap-1'>
@@ -161,7 +161,7 @@ const WeightMetrics = () => {
                         <h4>Low</h4>
                     </div>
                     <div className='flex items-center gap-1'>
-                        <div className='bg-sky-600 w-4 h-4 rounded-full' />
+                        <div className='bg-green-400 w-4 h-4 rounded-full' />
                         <h4>Good</h4>
                     </div>
                     <div className='flex items-center gap-1'>
