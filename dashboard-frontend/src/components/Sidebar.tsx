@@ -101,7 +101,7 @@ function SideBar({ className, ...props }: { className?: string, props?: React.Re
                     </PopoverTrigger>
                     <PopoverContent>
                         <Listbox>
-                            <ListboxItem key='profile' startContent={<SquareUser />}>My Profile</ListboxItem>
+                            <ListboxItem key='profile' startContent={<SquareUser />} onPress={() => navigate('/profile')} >My Profile</ListboxItem>
                             <ListboxItem key='logout' className='text-danger' color='danger' startContent={<LogOut />} onPress={logout}>Sign Out</ListboxItem>
                         </Listbox>
                     </PopoverContent>

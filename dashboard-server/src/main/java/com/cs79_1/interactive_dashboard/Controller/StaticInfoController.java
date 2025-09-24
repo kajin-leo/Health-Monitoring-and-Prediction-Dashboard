@@ -1,7 +1,6 @@
 package com.cs79_1.interactive_dashboard.Controller;
 
 import com.cs79_1.interactive_dashboard.DTO.*;
-import com.cs79_1.interactive_dashboard.DTO.FoodIntakeSummary;
 import com.cs79_1.interactive_dashboard.Security.SecurityUtils;
 import com.cs79_1.interactive_dashboard.Service.StaticInfoService;
 import com.cs79_1.interactive_dashboard.Service.StaticInfoService.FoodIntakeService;
@@ -18,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -158,7 +159,45 @@ public class StaticInfoController {
             long userId = SecurityUtils.getCurrentUserId();
             return foodIntakeService.calculateFoodIntake(userId);
         }
-
-
     }
+
+    @GetMapping("/user_info")
+    public ResponseEntity<UserInfoResponse> getUserInfo() {
+        long userId = SecurityUtils.getCurrentUserId();
+        
+        UserInfoResponse dto = staticInfoService.getUserInfo(userId);
+        return ResponseEntity.ok(dto);
+    
+    }
+
+    @PutMapping("/user_info_update")
+    public ResponseEntity<?> updateUser(@RequestBody UpdateUserInfoRequest req) {
+
+        long userId = SecurityUtils.getCurrentUserId();
+        try {
+            UserInfoResponse existing = staticInfoService.getUserInfo(userId);
+            String username = req.getUsername() != null ? req.getUsername() : existing.getUsername();
+
+            String firstName = req.getFirstName() != null ? req.getFirstName() : existing.getFirstName();
+            String lastName = req.getLastName() != null ? req.getLastName() : existing.getLastName();
+            Integer ageYear = req.getAgeYear() != null ? req.getAgeYear() : existing.getAgeYear();
+            Integer sex = req.getSex() != null ? req.getSex() : existing.getSex();
+            String password = req.getPassword();
+            UserInfoResponse updated = staticInfoService.updateUserInfo(
+                userId,
+                username,
+                firstName,
+                lastName,
+                ageYear,
+                sex,
+                password
+            );
+            return ResponseEntity.ok(updated);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(null);
+        }
+    }
+        
 }

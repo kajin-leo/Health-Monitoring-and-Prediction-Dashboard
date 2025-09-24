@@ -11,6 +11,7 @@ import Unauthorized from './pages/auth/Unauthorized'
 import { UserProvider } from './context/UserContext'
 import { useUser } from './context/UserContext'
 import { CircularProgress } from '@heroui/react'
+import Profile from './pages/client/Profile'
 
 function ClientLayout({ children }) {
     const { loading, error } = useUser();
@@ -83,6 +84,15 @@ function App() {
                         <Simulation />
                     </ClientLayout>
                 } />
+
+                <Route path="/profile" element={
+                    <ProtectedRoute requiredRole={['USER']}>
+                        <ClientLayout>
+                            <Profile />
+                        </ClientLayout>
+                    </ProtectedRoute>
+                } />
+
 
                 {/* Ops-end Routing */}
                 <Route path="/ops" element={
