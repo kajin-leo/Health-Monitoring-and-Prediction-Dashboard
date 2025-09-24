@@ -12,11 +12,13 @@ import com.cs79_1.interactive_dashboard.Repository.MentalHealthAndDailyRoutineRe
 import com.cs79_1.interactive_dashboard.Repository.WeightMetricsRepository;
 import com.cs79_1.interactive_dashboard.DTO.BodyCompositionSummary;
 import com.cs79_1.interactive_dashboard.DTO.FoodIntakeResultDto;
+import com.cs79_1.interactive_dashboard.DTO.UserInfoResponse;
 
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -36,6 +38,9 @@ public class StaticInfoService {
 
     @Autowired
     private BodyCompositionRepository bodyCompositionRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     private final static Logger logger = LoggerFactory.getLogger(StaticInfoService.class);
@@ -291,4 +296,60 @@ public class StaticInfoService {
         }
 
     }
+    public UserInfoResponse getUserInfo(long userId) {
+            Optional<User> userOptional = userService.getUserByUserId(userId);
+            if(userOptional.isPresent()){
+                User user = userOptional.get();
+
+                UserInfoResponse dto = new UserInfoResponse(
+                    user.getUsername(),
+                    user.getFirstName(),
+                    user.getLastName(), 
+                    user.getAgeYear(), 
+                    user.getSex()
+                
+                );
+
+                return dto;
+            }
+
+            throw new RuntimeException("User not exist");
+        }
+
+
+
+    public UserInfoResponse updateUserInfo(
+            long userId,
+            String username,
+            String firstName,
+            String lastName,
+            Integer ageYear,
+            Integer sex,
+            String password // optional
+    ) {
+        User user = userService.getUserByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User not exist"));
+
+        if (username != null) user.setUsername(username);
+        if (firstName != null) user.setFirstName(firstName);
+        if (lastName != null) user.setLastName(lastName);
+        if (ageYear != null) user.setAgeYear(ageYear);
+        if (sex != null) user.setSex(sex);
+
+        if (password != null && !password.isEmpty()) {
+            user.setPassword(passwordEncoder.encode(password)); 
+        }
+
+        userService.saveUser(user);
+
+        return new UserInfoResponse(
+                user.getUsername(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getAgeYear(),
+                user.getSex()
+        );
+    }
 }
+
+
