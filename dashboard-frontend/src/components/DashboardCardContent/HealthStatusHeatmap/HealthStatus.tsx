@@ -116,12 +116,12 @@ export default function HeatmapChart({ group }: { group: "weekdays" | "weekends"
   const [type, setType] = useState<"mvpa" | "light">("mvpa");
 
   useEffect(() => {
-    const sid = '3'; // TODO: 换成当前用户 id
-    if (!sid) return;
+    // const sid = '3'; // TODO: 换成当前用户 id
+    // if (!sid) return;
 
     setLoading(true);
     userAPI
-      .getHeatMapData({ sid })
+      .getHeatMapData()
       .then((res: { data: ImpactResponse } | ImpactResponse) => {
         const data = "data" in res ? res.data : res;
         // filter by group

@@ -6,8 +6,8 @@ export const userAPI = {
     return response.data;
   },
 
-  getHeatMapData: async (credentials: { sid: string }) => {
-    const response = await apiClient.post('/simulation/heatmap', credentials);
+  getHeatMapData: async () => {
+    const response = await apiClient.get('/simulation/heatmap');
     return response.data;
   }
   
