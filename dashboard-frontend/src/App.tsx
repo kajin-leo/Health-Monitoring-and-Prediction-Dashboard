@@ -73,11 +73,6 @@ function App() {
                     </ProtectedRoute>
 
                 } />
-                <Route path="/chart-demo" element={
-                    <ClientLayout>
-                        <ChartDemo />
-                    </ClientLayout>
-                } />
 
                 <Route path='/simulate' element={
                     <ClientLayout>

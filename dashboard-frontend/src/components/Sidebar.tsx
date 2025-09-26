@@ -17,11 +17,6 @@ const sidebarData = {
             url: '/'
         },
         {
-            title: 'Interactable Chart',
-            icon: ChartLine,
-            url: '/chart-demo'
-        },
-        {
             title: 'Simulate',
             icon: FlaskConical,
             url: '/simulate'
