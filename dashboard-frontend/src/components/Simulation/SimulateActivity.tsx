@@ -43,7 +43,7 @@ const SimulateActivity = ({ MockData, isWeekend }: { MockData?: ActivityData, is
         } else {
             fetchData();
         }
-    }, [MockData])
+    }, [MockData, isWeekend])
 
     const submitSimulation = async () => {
         if (MockData) {
@@ -112,7 +112,7 @@ const SimulateActivity = ({ MockData, isWeekend }: { MockData?: ActivityData, is
 
     return (
         <div className="w-full h-full flex flex-col gap-2 p-5">
-            <div className="w-fit h-fit flex flex-col">
+            <div className="w-fit h-fit flex flex-shrink-0 flex-col">
                 <h1 className="w-fit opacity-100 rounded-lg text-gray-800 pl-1 text-lg tracking-tight font-bold font-[Nunito] flex-shrink-0">
                     Acitivity Simulation
                 </h1>
@@ -120,11 +120,11 @@ const SimulateActivity = ({ MockData, isWeekend }: { MockData?: ActivityData, is
                     Try dragging on the chart to simulate changes on your activities pattern.
                 </h2>
             </div>
-            <div className="w-full h-full flex gap-5 items-center justify-center">
+            <div className="w-full flex-1 flex gap-5 items-center justify-center">
                 <div id="chart" className="w-full h-full">
                     <SimulateActivityChart data={chartData!} DragEndCallback={onDragEnd} resetTrigger={resetTrigger} />
                 </div>
-                <div id="panel" className="h-fit  p-5 flex flex-col items-center gap-5 select-none">
+                <div id="panel" className="flex-shrink-0 p-5 flex flex-col items-center gap-5 select-none">
                     <div className="flex gap-2">
                         <div className={`w-25 h-10 transition-all flex flex-col items-center justify-center rounded-full bg-lime-300 p-1 border-3 border-white/50 text-lime-700 ${(canSimulate && !isSimulating) ? ' hover:border-2 hover:shadow-md active:border-2 active:border-lime-400/20 active:inset-shadow-sm/40 active:shadow-none active:text-shadow-lime-800/20 active:text-shadow-xs' : 'cursor-not-allowed bg-lime-400/20'}`}
                             onClick={submitSimulation}>

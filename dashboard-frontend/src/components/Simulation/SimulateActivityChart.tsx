@@ -95,7 +95,7 @@ const SimulateActivityChart = ({data, DragEndCallback, resetTrigger} : {data: Ac
     }, [data, resetTrigger]);
 
     return (
-        <div className="w-full h-full relative min-h-100">
+        <div className="w-full relative h-full">
             {
                 <canvas ref={chartRef} ></canvas>
             }
