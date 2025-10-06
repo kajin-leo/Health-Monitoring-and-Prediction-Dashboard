@@ -199,7 +199,7 @@ public class StaticInfoService {
         double wlgr50 = bc.getWlgr50();
         double wlgx625 = bc.getWlgx625();
         double wlgx50 = bc.getWlgx50();
-        double bmi = bc.getBmi();
+        double bmi = bc.getBMI();
         
         double sum = fat + muscle + water;
         if (sum > 100.0 && sum > 0) {
