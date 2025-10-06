@@ -76,8 +76,8 @@ public class SimulationController {
             AlteredActivityPredictionRequest predictionRequest = new AlteredActivityPredictionRequest(userId, !request.isWeekend());
             StructuredActivityDTO structuredActivityDTO = workoutAmountService.getStructuredActivityData(userId, request.isWeekend());
             for(int i = 0; i < 24; i++) {
-                double mvpaScale = (double)(request.getMvpa()[i] + structuredActivityDTO.getMVPA().get(i)) / structuredActivityDTO.getMVPA().get(i);
-                double lightScale = (double)(request.getLight()[i] + structuredActivityDTO.getLight().get(i)) / structuredActivityDTO.getLight().get(i);
+                double mvpaScale = (double)request.getMvpa()[i] / structuredActivityDTO.getMVPA().get(i);
+                double lightScale = (double)request.getLight()[i] / structuredActivityDTO.getLight().get(i);
                 predictionRequest.addMVPA(i, mvpaScale);
                 predictionRequest.addLight(i, lightScale);
             }
