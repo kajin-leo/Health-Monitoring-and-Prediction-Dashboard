@@ -59,7 +59,7 @@ function convertHeatmapData(
 const cellBg = (ctx: any) => {
   const v = ctx.raw?.score ?? 0;
   if (v === 0) {
-    return `rgba(0, 0, 0, 0)`; 
+    return `rgba(0, 0, 0, 0)`;
   }
   if (v <= 0) {
     const t = v + 1;
@@ -221,21 +221,23 @@ export default function HeatmapChart({ group, activityType }: { group: "weekdays
 
   return (
     <div className="w-full h-full flex flex-col gap-3">
-        <h1 className="w-fit opacity-100 rounded-lg text-gray-800 pl-1 text-lg tracking-tight font-bold font-[Nunito] flex-shrink-0">
-                    Heatmap
-        </h1>
       <div className="flex items-center gap-2 flex-shrink-0 flex-col">
 
-         <h2 className="text-sm px-1 font-serif">
+        <h2 className="text-sm px-1 font-serif">
           {activityType === "mvpa" ? "MVPA" : "Light"}
         </h2>
-
-        {loading && <span className="text-sm text-gray-500">Loading…</span>}
-      </div>{loading && <span className="text-sm text-gray-500">Loading…</span>}
-
-      <div style={{ width: "90%", height: 180 }}>
-        <Chart type="matrix" data={data} options={options as any} />
       </div>
+      {loading &&
+        <div className="h-full flex flex-col items-center justify-center">
+          <span className="text-sm text-gray-500 w-full text-center">
+            Loading…
+          </span>
+        </div>
+      }
+
+      {!loading && <div style={{ width: "90%", height: 180 }}>
+        <Chart type="matrix" data={data} options={options as any} />
+      </div>}
     </div>
   );
 }
