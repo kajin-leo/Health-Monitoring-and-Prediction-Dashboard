@@ -7,10 +7,10 @@ from utils import utils
 from utils.hook_attcat import AttnHiddenCollector
 from ts_transformer import TSTransformerEncoderClassiregressor
 from data import Normalizer
-import pickle
-import os
+import pickle, os, json, threading, logging
 from sqlalchemy import create_engine, text
 from threading import Lock
+from rabbitmq_client import RabbitMQClient
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
@@ -26,6 +26,13 @@ MAX_SEQ_LEN = 222
 CSV_HAS_HEADER = True   
 PAD_VALUE = 0.0
 USE_STATIC = True
+
+HEATMAP_TASK_QUEUE = "heatmap.task.queue"
+HEATMAP_RESULT_QUEUE = "heatmap.result.queue"
+PREDICT_TASK_QUEUE = "predict.task.queue"
+PREDICT_RESULT_QUEUE = "predict.result.queue"
+
+mq_client = RabbitMQClient()
 
 with open(r"../checkpoints/normalization.pickle", "rb") as f:
     norm_dict = pickle.load(f)
@@ -91,20 +98,14 @@ def _zero_out_model_grads():
     except Exception:
         pass
 
-@app.route("/api/predict", methods=["GET"])
-def predict():
-
-    sid = (request.values.get("sid")
-           or (request.json.get("sid") if request.is_json else None))
-    if not sid:
-        return jsonify({"error": "missing 'sid'"}), 400
-
+# === Business ===
+def generate_heatmap_data(userId):
     try:
-        df = load_timeseries_from_db(sid)      # 返回列正好是 f1,f2,f3
+        df = load_timeseries_from_db(userId)      # 返回列正好是 f1,f2,f3
         df["ts"] = pd.to_datetime(df["ts"], errors="coerce")
-        age, is_female = load_attrs_from_db(sid)
+        age, is_female = load_attrs_from_db(userId)
     except Exception as e:
-        return jsonify({"error": str(e)}), 404
+        raise ValueError(e)
 
     feat = df[["f1", "f2", "f3"]].copy()
     feat.columns = ["f1", "f2", "f3"]
@@ -242,20 +243,17 @@ def predict():
     _zero_out_model_grads()
     _reset_collector()
 
-    return jsonify({
-        "sid": sid,
+    return {
+        "userId": userId,
         "probs": {cls: prob for cls, prob in zip(CLASS_NAMES, probs)},
         "mvpa_impact": mvpa_impact,
         "light_impact": light_impact
-    })
+    }
 
-@app.route("/api/predict", methods=["POST"])
-def simulate_predict():
-    data = request.get_json(silent=True) or {}
-
+def simulate_predict(data):
     sid = data.get("userId")
     if not sid:
-        return jsonify({"error": "missing 'sid' or 'userId'"}), 400
+        raise ValueError("UserId is Missing")
 
     is_weekdays = data.get("isWeekdays", data.get("is_weekday", True))
     is_weekdays = bool(is_weekdays)
@@ -281,7 +279,7 @@ def simulate_predict():
             age, is_female = load_attrs_from_db(sid)
         df["ts"] = pd.to_datetime(df["ts"], errors="coerce")
     except Exception as e:
-        return jsonify({"error": str(e)}), 404
+        return ValueError(str(e))
 
     weekday_idx = df["ts"].dt.weekday
     day_mask = (weekday_idx < 5) if is_weekdays else (weekday_idx >= 5)
@@ -353,7 +351,106 @@ def simulate_predict():
     # print(f"category: {pred_label} (index={pred_idx}, prob={prob:.4f})")
     # print("probability：", {CLASS_NAMES[i]: float(probs_t[0,i]) for i in range(NUM_CLASSES)})
 
-    return jsonify({
+    return {
         "classification": top_label,
         "probability": top_prob
-    })
+    }
+
+# === RabbitMQ ===
+def handle_prediction_task(ch, method, properties, body):
+    try:
+        # app.logger.info(body)
+        message = json.loads(body)
+        task_id = message.get('taskId')
+        data = message.get('request', {})
+        app.logger.info(f"Handling prediction task, {task_id}")
+
+        result = simulate_predict(data)
+
+        result["taskId"] = task_id
+        mq_client.publish(PREDICT_RESULT_QUEUE, result)
+        app.logger.info(f"Result pushed for prediction task, {task_id}")
+        
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+
+    except Exception as e:
+        app.logger.error(f"Error handling prediction task, {e}")
+        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+
+def handle_heatmap_task(ch, method, properties, body):
+    try:
+        # app.logger.info(body)
+        userId = json.loads(body)
+        result = generate_heatmap_data(userId)
+
+        mq_client.publish(HEATMAP_RESULT_QUEUE, result)
+        app.logger.info(f"Result pushed for heatmap task, {userId}")
+
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+
+    except Exception as e:
+        app.logger.error(f"Error handling heatmap task, {e}")
+        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+
+def start_consumer():
+    try:
+        mq_client.declare_queue(HEATMAP_TASK_QUEUE)
+        mq_client.declare_queue(HEATMAP_RESULT_QUEUE)
+        mq_client.declare_queue(PREDICT_TASK_QUEUE)
+        mq_client.declare_queue(PREDICT_RESULT_QUEUE)
+
+        prediction_thread = threading.Thread(
+            target=mq_client.consume,
+            args=(PREDICT_TASK_QUEUE, handle_prediction_task),
+            kwargs={'prefetch_count': 1},
+            daemon=True,
+            name="PredictionConsumer"
+        )
+
+        heatmap_thread = threading.Thread(
+            target=mq_client.consume,
+            args=(HEATMAP_TASK_QUEUE, handle_heatmap_task),
+            kwargs={'prefetch_count': 1},
+            daemon=True,
+            name="HeatmapConsumer"
+        )
+
+        prediction_thread.start()
+        heatmap_thread.start()
+
+        app.logger.info("-----------MQ THREAD START-----------")
+
+        import time
+        time.sleep(1)
+        
+        if prediction_thread.is_alive() and heatmap_thread.is_alive():
+            app.logger.info("All consumer threads are running")
+        else:
+            app.logger.error("Some consumer threads failed to start")
+    except Exception as e:
+        app.logger.error(f"Failure starting consumer threads: {e}", exc_info=True)
+
+# === RESTful APIs ===
+
+@app.route("/api/predict", methods=["GET"])
+def predict():
+    userId = (request.values.get("userId")
+           or (request.json.get("userId") if request.is_json else None))
+    if not userId:
+        return jsonify({"error": "missing 'userId'"}), 400
+
+    try:
+        data = generate_heatmap_data(userId)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify(e), 400
+
+@app.route("/api/predict", methods=["POST"])
+def generate_prediction():
+    try:
+        data = request.get_json(silent=True) or {}
+        return jsonify(data)
+    except Exception as e:
+        return jsonify(e), 400
+
+start_consumer()
