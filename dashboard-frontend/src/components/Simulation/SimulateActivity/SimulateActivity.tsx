@@ -3,8 +3,8 @@ import SimulateActivityChart from "./SimulateActivityChart";
 import { type ReviewData } from "./HealthReview";
 import HealthReview from "./HealthReview";
 import { Button, Spinner } from "@heroui/react";
-import { apiClient } from "../../service/axios";
-import { API_CONFIG } from "../../config/api";
+import { apiClient } from "../../../service/axios";
+import { API_CONFIG } from "../../../config/api";
 import { fetchEventSource } from '@microsoft/fetch-event-source'
 
 type ActivityData = {
