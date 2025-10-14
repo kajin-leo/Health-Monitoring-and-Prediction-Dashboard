@@ -99,165 +99,13 @@ def _zero_out_model_grads():
         pass
 
 # === Business ===
-def simulate_predict(data):
-    sid = data.get("userId")
-    if not sid:
-        raise ValueError("UserId is Missing")
-
-    is_weekdays = data.get("isWeekdays", data.get("is_weekday", True))
-    is_weekdays = bool(is_weekdays)
-
-    def _parse_hour_pct_map(obj):
-        out = {}
-        if isinstance(obj, dict):
-            for k, v in obj.items():
-                try:
-                    h = int(k)
-                    if 0 <= h <= 23:
-                        out[h] = float(v)  # v 为百分比，如 0.2 表示 +20%
-                except Exception:
-                    pass
-        return out
-
-    mvpa_pct  = _parse_hour_pct_map(data.get("mvpa", {}) or {})
-    light_pct = _parse_hour_pct_map(data.get("light", {}) or {})
-
+def generate_heatmap_data(userId):
     try:
-        if sid:
-            df = load_timeseries_from_db(sid)
-            age, is_female = load_attrs_from_db(sid)
+        df = load_timeseries_from_db(userId)      # 返回列正好是 f1,f2,f3
         df["ts"] = pd.to_datetime(df["ts"], errors="coerce")
+        age, is_female = load_attrs_from_db(userId)
     except Exception as e:
-        return ValueError(str(e))
-
-    weekday_idx = df["ts"].dt.weekday
-    day_mask = (weekday_idx < 5) if is_weekdays else (weekday_idx >= 5)
-    hours = df["ts"].dt.hour
-    CLIP_MIN, CLIP_MAX = 0.0, 3600.0
-
-    def _apply_pct_by_hour(series: pd.Series, pct_map: dict):
-        """
-        对给定 series（如 f1=mvpa / f3=light）在每个小时段乘以 (pct)，
-        以实现“均值按百分比调整”的效果。
-        """
-        s = series.copy().astype(float)
-        for h, pct in pct_map.items():
-            factor = float(pct)               # 0.2 => 1.2；-0.1 => 0.9
-            # 可选：限制 factor 下界，避免极端负值导致反号
-            # factor = max(0.0, factor)
-
-            mask = day_mask & (hours == int(h))
-            if not mask.any():
-                continue
-            s.loc[mask] = (s.loc[mask] * factor)
-            s.loc[mask] = s.loc[mask].clip(CLIP_MIN, CLIP_MAX).fillna(0.0)
-        return s
-
-    # f1=mvpa, f3=light
-    if mvpa_pct:
-        df["f1"] = _apply_pct_by_hour(df["f1"], mvpa_pct)
-    if light_pct:
-        df["f3"] = _apply_pct_by_hour(df["f3"], light_pct)
-
-    # ===== 组特征并归一化 =====
-    feat = df[["f1", "f2", "f3"]].copy()
-    feat.columns = ["f1", "f2", "f3"]
-    feat = normalizer.normalize(feat)
-
-    # ===== pad / truncate & mask =====
-    T, L = len(feat), MAX_SEQ_LEN
-    if T >= L:
-        feat = feat.iloc[:L, :].reset_index(drop=True)
-    else:
-        pad_rows = L - T
-        pad_df = pd.DataFrame(PAD_VALUE, index=range(pad_rows), columns=feat.columns)
-        feat = pd.concat([feat, pad_df], axis=0, ignore_index=True)
-
-    valid_len = min(T, L)
-    padding_mask = torch.ones(L, dtype=torch.bool)
-    if L - valid_len > 0:
-        padding_mask[-(L - valid_len):] = False
-    padding_mask = padding_mask.unsqueeze(0).to(device)
-
-    # ===== tensor & 静态 =====
-    x = torch.from_numpy(feat.values.astype(np.float32)).unsqueeze(0).to(device)
-    s_static = torch.tensor([[float(age), float(is_female)]], dtype=torch.float32).to(device)
-
-    # ===== 推理（仅概率）=====
-    model.eval()
-    with torch.inference_mode():
-        logits = model(x, padding_masks=padding_mask, static_features=s_static)
-        probs_t = torch.softmax(logits, dim=1)           # [1, C]
-        top_prob, top_idx = probs_t.squeeze(0).max(dim=0)
-        top_label = CLASS_NAMES[int(top_idx)]
-        top_prob  = float(top_prob.cpu().item())
-
-    top_prob = round(top_prob*100, 2)
-
-    pred_idx = int(torch.argmax(probs_t, dim=1).item())
-    pred_label = CLASS_NAMES[pred_idx]
-    prob = float(probs_t[0, pred_idx].item())
-    # print(f"category: {pred_label} (index={pred_idx}, prob={prob:.4f})")
-    # print("probability：", {CLASS_NAMES[i]: float(probs_t[0,i]) for i in range(NUM_CLASSES)})
-
-    return {
-        "classification": top_label,
-        "probability": top_prob
-    }
-
-# === RabbitMQ ===
-def handle_prediction_task(ch, method, properties, body):
-    try:
-        app.logger.info(body)
-        message = json.loads(body)
-        task_id = message.get('taskId')
-        data = message.get('request', {})
-        app.logger.info("Handling prediction task", task_id)
-
-        result = simulate_predict(data)
-
-        result["taskId"] = task_id
-        mq_client.publish(PREDICT_RESULT_QUEUE, result)
-        app.logger.info("Result pushed for task", task_id)
-        
-        ch.basic_ack(delivery_tag=method.delivery_tag)
-
-    except Exception as e:
-        app.logger.error("Error handling prediction task", e)
-        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
-
-
-def start_consumer():
-    try:
-        mq_client.declare_queue(HEATMAP_TASK_QUEUE)
-        mq_client.declare_queue(HEATMAP_RESULT_QUEUE)
-        mq_client.declare_queue(PREDICT_TASK_QUEUE)
-        mq_client.declare_queue(PREDICT_RESULT_QUEUE)
-
-        prediction_thread = threading.Thread(
-            target=mq_client.consume,
-            args=(PREDICT_TASK_QUEUE, handle_prediction_task),
-            daemon=True
-        )
-        prediction_thread.start()
-        app.logger.info("-----------PREDICTION THREAD START-----------")
-    except Exception as e:
-        app.logger.error("Failure opening threads for consuming", e)
-
-@app.route("/api/predict", methods=["GET"])
-def predict():
-
-    sid = (request.values.get("sid")
-           or (request.json.get("sid") if request.is_json else None))
-    if not sid:
-        return jsonify({"error": "missing 'sid'"}), 400
-
-    try:
-        df = load_timeseries_from_db(sid)      # 返回列正好是 f1,f2,f3
-        df["ts"] = pd.to_datetime(df["ts"], errors="coerce")
-        age, is_female = load_attrs_from_db(sid)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 404
+        raise ValueError(e)
 
     feat = df[["f1", "f2", "f3"]].copy()
     feat.columns = ["f1", "f2", "f3"]
@@ -395,12 +243,207 @@ def predict():
     _zero_out_model_grads()
     _reset_collector()
 
-    return jsonify({
-        "sid": sid,
+    return {
+        "userId": userId,
         "probs": {cls: prob for cls, prob in zip(CLASS_NAMES, probs)},
         "mvpa_impact": mvpa_impact,
         "light_impact": light_impact
-    })
+    }
+
+def simulate_predict(data):
+    sid = data.get("userId")
+    if not sid:
+        raise ValueError("UserId is Missing")
+
+    is_weekdays = data.get("isWeekdays", data.get("is_weekday", True))
+    is_weekdays = bool(is_weekdays)
+
+    def _parse_hour_pct_map(obj):
+        out = {}
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                try:
+                    h = int(k)
+                    if 0 <= h <= 23:
+                        out[h] = float(v)  # v 为百分比，如 0.2 表示 +20%
+                except Exception:
+                    pass
+        return out
+
+    mvpa_pct  = _parse_hour_pct_map(data.get("mvpa", {}) or {})
+    light_pct = _parse_hour_pct_map(data.get("light", {}) or {})
+
+    try:
+        if sid:
+            df = load_timeseries_from_db(sid)
+            age, is_female = load_attrs_from_db(sid)
+        df["ts"] = pd.to_datetime(df["ts"], errors="coerce")
+    except Exception as e:
+        return ValueError(str(e))
+
+    weekday_idx = df["ts"].dt.weekday
+    day_mask = (weekday_idx < 5) if is_weekdays else (weekday_idx >= 5)
+    hours = df["ts"].dt.hour
+    CLIP_MIN, CLIP_MAX = 0.0, 3600.0
+
+    def _apply_pct_by_hour(series: pd.Series, pct_map: dict):
+        """
+        对给定 series（如 f1=mvpa / f3=light）在每个小时段乘以 (pct)，
+        以实现“均值按百分比调整”的效果。
+        """
+        s = series.copy().astype(float)
+        for h, pct in pct_map.items():
+            factor = float(pct)               # 0.2 => 1.2；-0.1 => 0.9
+            # 可选：限制 factor 下界，避免极端负值导致反号
+            # factor = max(0.0, factor)
+
+            mask = day_mask & (hours == int(h))
+            if not mask.any():
+                continue
+            s.loc[mask] = (s.loc[mask] * factor)
+            s.loc[mask] = s.loc[mask].clip(CLIP_MIN, CLIP_MAX).fillna(0.0)
+        return s
+
+    # f1=mvpa, f3=light
+    if mvpa_pct:
+        df["f1"] = _apply_pct_by_hour(df["f1"], mvpa_pct)
+    if light_pct:
+        df["f3"] = _apply_pct_by_hour(df["f3"], light_pct)
+
+    # ===== 组特征并归一化 =====
+    feat = df[["f1", "f2", "f3"]].copy()
+    feat.columns = ["f1", "f2", "f3"]
+    feat = normalizer.normalize(feat)
+
+    # ===== pad / truncate & mask =====
+    T, L = len(feat), MAX_SEQ_LEN
+    if T >= L:
+        feat = feat.iloc[:L, :].reset_index(drop=True)
+    else:
+        pad_rows = L - T
+        pad_df = pd.DataFrame(PAD_VALUE, index=range(pad_rows), columns=feat.columns)
+        feat = pd.concat([feat, pad_df], axis=0, ignore_index=True)
+
+    valid_len = min(T, L)
+    padding_mask = torch.ones(L, dtype=torch.bool)
+    if L - valid_len > 0:
+        padding_mask[-(L - valid_len):] = False
+    padding_mask = padding_mask.unsqueeze(0).to(device)
+
+    # ===== tensor & 静态 =====
+    x = torch.from_numpy(feat.values.astype(np.float32)).unsqueeze(0).to(device)
+    s_static = torch.tensor([[float(age), float(is_female)]], dtype=torch.float32).to(device)
+
+    # ===== 推理（仅概率）=====
+    model.eval()
+    with torch.inference_mode():
+        logits = model(x, padding_masks=padding_mask, static_features=s_static)
+        probs_t = torch.softmax(logits, dim=1)           # [1, C]
+        top_prob, top_idx = probs_t.squeeze(0).max(dim=0)
+        top_label = CLASS_NAMES[int(top_idx)]
+        top_prob  = float(top_prob.cpu().item())
+
+    top_prob = round(top_prob*100, 2)
+
+    pred_idx = int(torch.argmax(probs_t, dim=1).item())
+    pred_label = CLASS_NAMES[pred_idx]
+    prob = float(probs_t[0, pred_idx].item())
+    # print(f"category: {pred_label} (index={pred_idx}, prob={prob:.4f})")
+    # print("probability：", {CLASS_NAMES[i]: float(probs_t[0,i]) for i in range(NUM_CLASSES)})
+
+    return {
+        "classification": top_label,
+        "probability": top_prob
+    }
+
+# === RabbitMQ ===
+def handle_prediction_task(ch, method, properties, body):
+    try:
+        # app.logger.info(body)
+        message = json.loads(body)
+        task_id = message.get('taskId')
+        data = message.get('request', {})
+        app.logger.info(f"Handling prediction task, {task_id}")
+
+        result = simulate_predict(data)
+
+        result["taskId"] = task_id
+        mq_client.publish(PREDICT_RESULT_QUEUE, result)
+        app.logger.info(f"Result pushed for prediction task, {task_id}")
+        
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+
+    except Exception as e:
+        app.logger.error(f"Error handling prediction task, {e}")
+        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+
+def handle_heatmap_task(ch, method, properties, body):
+    try:
+        # app.logger.info(body)
+        userId = json.loads(body)
+        result = generate_heatmap_data(userId)
+
+        mq_client.publish(HEATMAP_RESULT_QUEUE, result)
+        app.logger.info(f"Result pushed for heatmap task, {userId}")
+
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+
+    except Exception as e:
+        app.logger.error(f"Error handling heatmap task, {e}")
+        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+
+def start_consumer():
+    try:
+        mq_client.declare_queue(HEATMAP_TASK_QUEUE)
+        mq_client.declare_queue(HEATMAP_RESULT_QUEUE)
+        mq_client.declare_queue(PREDICT_TASK_QUEUE)
+        mq_client.declare_queue(PREDICT_RESULT_QUEUE)
+
+        prediction_thread = threading.Thread(
+            target=mq_client.consume,
+            args=(PREDICT_TASK_QUEUE, handle_prediction_task),
+            kwargs={'prefetch_count': 1},
+            daemon=True,
+            name="PredictionConsumer"
+        )
+
+        heatmap_thread = threading.Thread(
+            target=mq_client.consume,
+            args=(HEATMAP_TASK_QUEUE, handle_heatmap_task),
+            kwargs={'prefetch_count': 1},
+            daemon=True,
+            name="HeatmapConsumer"
+        )
+
+        prediction_thread.start()
+        heatmap_thread.start()
+
+        app.logger.info("-----------MQ THREAD START-----------")
+
+        import time
+        time.sleep(1)
+        
+        if prediction_thread.is_alive() and heatmap_thread.is_alive():
+            app.logger.info("All consumer threads are running")
+        else:
+            app.logger.error("Some consumer threads failed to start")
+    except Exception as e:
+        app.logger.error(f"Failure starting consumer threads: {e}", exc_info=True)
+
+# === RESTful APIs ===
+
+@app.route("/api/predict", methods=["GET"])
+def predict():
+    userId = (request.values.get("userId")
+           or (request.json.get("userId") if request.is_json else None))
+    if not userId:
+        return jsonify({"error": "missing 'userId'"}), 400
+
+    try:
+        data = generate_heatmap_data(userId)
+        return jsonify(data)
+    except Exception as e:
+        return jsonify(e), 400
 
 @app.route("/api/predict", methods=["POST"])
 def generate_prediction():
@@ -408,6 +451,6 @@ def generate_prediction():
         data = request.get_json(silent=True) or {}
         return jsonify(data)
     except Exception as e:
-        return jsonify(e, 400)
+        return jsonify(e), 400
 
 start_consumer()
