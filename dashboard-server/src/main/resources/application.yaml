@@ -43,3 +43,7 @@ jwt:
   expiration: 86400000
 
 ML_PORT: 5485
+
+file:
+  upload:
+    path: ${FILE_UPLOAD_PATH:./uploads}

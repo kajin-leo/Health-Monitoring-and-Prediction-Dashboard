@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import AvatarUploader from "../../components/Settings/AvatarUploader";
 import { userAPI } from "../../service/api";
 import defaultAvartar from "../../assets/豹豹Idle.svg";
+import { API_CONFIG } from "../../config/api";
 
 
 
@@ -18,7 +19,8 @@ const Settings = () => {
                     console.log("id:",responseData.id)
                     setUserId(responseData.id); 
                     if (responseData.avatarUrl) {
-                        setAvatarUrl(responseData.avatarUrl);
+                        setAvatarUrl(`${API_CONFIG.BASE_URL}${responseData.avatarUrl}`);
+                        console.log(`${API_CONFIG.BASE_URL}${responseData.avatarUrl}`);
                     }
                 }
             } catch (err) {
@@ -35,7 +37,7 @@ const Settings = () => {
         try {
             setIsUploading(true);
             const response = await userAPI.uploadAvatar(userId, file);
-            setAvatarUrl(response.avatarUrl);
+            setAvatarUrl(`${API_CONFIG.BASE_URL}${response.avatarUrl}`);
         } catch (e) {
             console.error("Upload failed:", e);
             alert("Failed to upload avatar. Please try again.");

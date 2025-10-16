@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/model/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/localbackend/**").permitAll()
+                        .requestMatchers("/uploads/avatars/**").permitAll()
                         .requestMatchers("/api/ops/**").hasAnyRole("ADMIN", "SUPERADMIN")
                         .anyRequest().authenticated()
                 )

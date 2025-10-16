@@ -4,6 +4,7 @@ package com.cs79_1.interactive_dashboard.Service;
 import com.cs79_1.interactive_dashboard.Entity.User;
 import com.cs79_1.interactive_dashboard.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,14 +18,11 @@ import java.util.Optional;
 
 @Service
 public class AvatarService {
-
-    private final String UPLOAD_DIR = "uploads/avatars/";
-    private final UserRepository userRepository; // 注入 Repository
+    @Value("${file.upload.path:/var/www/uploads/avatars/}")
+    String UPLOAD_DIR;
 
     @Autowired
-    public AvatarService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    UserRepository userRepository;
 
     @Transactional
     public String saveAvatar(MultipartFile file, Long userId) throws IOException {
@@ -39,13 +37,14 @@ public class AvatarService {
         }
 
         String originalFilename = file.getOriginalFilename();
+        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String newFileName = userId + "_" + System.currentTimeMillis() + extension;
 
-        String newFileName = userId + "_" + System.currentTimeMillis() + "_" + originalFilename;
         Path targetPath = Paths.get(UPLOAD_DIR + newFileName);
 
         Files.write(targetPath, file.getBytes());
 
-        String newAvatarUrl = "/static/avatars/" + newFileName;
+        String newAvatarUrl = "/uploads/avatars/" + newFileName;
 
 
 

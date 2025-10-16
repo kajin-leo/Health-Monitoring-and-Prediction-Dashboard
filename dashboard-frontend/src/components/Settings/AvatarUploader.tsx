@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import defaultAvatar from "../../assets/豹豹Idle.svg";
 
 const AvatarUploader = ({ currentAvatar, onFileSelect }) => {
@@ -11,6 +11,12 @@ const AvatarUploader = ({ currentAvatar, onFileSelect }) => {
     setPreview(URL.createObjectURL(selected));
     onFileSelect(selected); 
   };
+
+  useEffect(()=>{
+    if(currentAvatar) {
+      setPreview(currentAvatar);
+    }
+  }, [currentAvatar])
 
   return (
     <div className="flex flex-col items-center gap-4">
