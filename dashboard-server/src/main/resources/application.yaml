@@ -46,4 +46,4 @@ ML_PORT: 5485
 
 file:
   upload:
-    path: ${FILE_UPLOAD_PATH:./uploads}
+    path: ${FILE_UPLOAD_PATH:./uploads/avatars/}
