@@ -69,7 +69,7 @@ const HealthReview = ({ data }: { data?: ReviewData }) => {
                             {
                                 reviewData!.isLoading ?
                                     (
-                                        <div className="flex flex-col items-center justify-center bg-stone-100 text-stone-600 gap-4 p-4 pt-2">
+                                        <div className="flex flex-col items-center justify-center bg-stone-100 dark:bg-gray-800 text-stone-600 dark:text-stone-200 gap-4 p-4 pt-2">
                                             <h3>Prediction</h3>
                                             {/* <h1 className="text-5xl font-[Nunito] font-bold">?</h1> */}
                                             <Spinner color="default" size="sm"/>
