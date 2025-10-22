@@ -24,11 +24,11 @@ const Login = () => {
         setPasswordInvalid(false);
         clearUserInfo();
 
-        if(username.trim() === '' || username.length < 3) {
+        if (username.trim() === '' || username.length < 3) {
             setUsernameInvalid(true);
         }
 
-        if(password.trim() === '' || password.length < 6){
+        if (password.trim() === '' || password.length < 6) {
             setPasswordInvalid(true);
             setIsLoading(false);
             return;
@@ -75,21 +75,31 @@ const Login = () => {
                 isInvalid={isUsernameInvalid}
             />
 
-            <Input label='Password'
-                placeholder='Please enter your password'
-                type='password'
-                value={password}
-                onValueChange={setPassword}
-                errorMessage="Please enter a valid password. "
-                isInvalid={isPasswordInvalid}
-            />
-            <Button type="submit" color='primary' isLoading={isLoading} onPress={handleLogin} className='mt-4'>
-                Sign In
-            </Button>
-            {errorResponse != '' ? <Alert icon={<CircleX stroke='white' />} color='danger'>{errorResponse}</Alert> : ''}
-        </div>
+                <Input label='Password'
+                    placeholder='Please enter your password'
+                    type='password'
+                    value={password}
+                    onValueChange={setPassword}
+                    errorMessage="Please enter a valid password. "
+                    isInvalid={isPasswordInvalid}
+                />
+                <Button type="submit" color='primary' isLoading={isLoading} onPress={handleLogin} className='mt-4'>
+                    Sign In
+                </Button>
+                <div className="text-sm text-gray-600 mt-2">
+                    Don't have an account?{" "}
+                    <span
+                        className="text-blue-600 hover:underline cursor-pointer"
+                        onClick={() => navigate('/register')}
+                    >
+                        Register here
+                    </span>
+                </div>
+
+                {errorResponse != '' ? <Alert icon={<CircleX stroke='white' />} color='danger'>{errorResponse}</Alert> : ''}
+            </div>
         </form>
-        
+
     )
 }
 

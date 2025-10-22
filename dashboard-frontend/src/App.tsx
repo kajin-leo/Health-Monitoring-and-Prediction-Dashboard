@@ -14,6 +14,7 @@ import { CircularProgress } from '@heroui/react'
 import Profile from './pages/client/Profile'
 import { Settings } from 'lucide-react'
 import Setting from './pages/setting/Setting'
+import Register from './pages/auth/Register'
 
 function ClientLayout({ children }) {
     const { loading, error } = useUser();
@@ -106,6 +107,12 @@ function App() {
                 <Route path="/login" element={
                     <AuthLayout>
                         <Login />
+                    </AuthLayout>
+                } />
+
+                <Route path="/register" element={
+                    <AuthLayout>
+                        <Register />
                     </AuthLayout>
                 } />
 
