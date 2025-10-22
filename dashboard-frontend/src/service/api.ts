@@ -1,15 +1,28 @@
 import {apiClient, mlClient} from './axios';
 
 export const userAPI = {
+
+  //Auth
+
+  register: async (userInfo: { username: string; password: string }) => {
+    const response = await apiClient.post('/auth/register', userInfo);
+    return response.data;
+  },
+
   login: async (credentials: { username: string; password: string }) => {
     const response = await apiClient.post('/auth/login', credentials);
     return response.data;
   },
 
+  // Simulation
+
   getHeatMapData: async () => {
     const response = await apiClient.get('/simulation/heatmap');
     return response.data;
   },
+
+
+  // Avatar
   
   uploadAvatar: async (userId: number, file: File) => {
     const formData = new FormData();
@@ -25,6 +38,8 @@ export const userAPI = {
   getAvatar: async () => {
     const response = await apiClient.get('/user/avatar');
     return response.data;
-  }
+  },
+
+
   
 };

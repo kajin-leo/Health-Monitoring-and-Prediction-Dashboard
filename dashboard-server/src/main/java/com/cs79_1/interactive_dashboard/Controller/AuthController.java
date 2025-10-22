@@ -70,9 +70,9 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/register")
+    @PostMapping("/register/admin")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<?> registerAdmin(@Valid @RequestBody RegisterRequest registerRequest) {
         try {
             if (userRepository.existsByUsername(registerRequest.getUsername())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Username already exists"));
@@ -82,6 +82,35 @@ public class AuthController {
             newUser.setUsername(registerRequest.getUsername());
             newUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
             newUser.setRole(registerRequest.isAdmin() ? Role.ADMIN : Role.USER);
+
+            User savedUser = userRepository.save(newUser);
+
+            logger.info("New {} registered: {}", savedUser.getRole().name(), savedUser.getUsername());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "User registered successfully");
+            response.put("userId", savedUser.getId());
+            response.put("username", savedUser.getUsername());
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            logger.error("Registration error: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error occurred during registration"));
+        }
+    }
+
+    @PostMapping("/register")
+
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
+        try {
+            if (userRepository.existsByUsername(registerRequest.getUsername())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Username already exists"));
+            }
+
+            User newUser = new User();
+            newUser.setUsername(registerRequest.getUsername());
+            newUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+            newUser.setRole(Role.USER);
 
             User savedUser = userRepository.save(newUser);
 
