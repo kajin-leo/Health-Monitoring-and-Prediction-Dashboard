@@ -122,13 +122,14 @@ function App() {
                     </AuthLayout>
                 } />
 
-                <Route path="/settings" element={
+               {/* <Route path="/settings" element={
                     <ProtectedRoute requiredRole={['USER']}>
                         <ClientLayout>
                             <Setting />
                         </ClientLayout>
                     </ProtectedRoute>
-                } />
+                /> 
+                } />*/}
             </Routes>
         </UserProvider>
 
