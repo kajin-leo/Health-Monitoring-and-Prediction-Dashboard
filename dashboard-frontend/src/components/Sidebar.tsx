@@ -24,11 +24,11 @@ const sidebarData = {
         }
     ],
     navBottoms: [
-        {
+       /* {
             title: 'Settings',
             icon: Cog,
             url: '/settings'
-        },
+        },*/
         {
             title: 'Get Help',
             icon: CircleQuestionMark,
