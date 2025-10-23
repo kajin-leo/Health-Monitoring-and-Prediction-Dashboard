@@ -89,7 +89,7 @@ const Login = () => {
                 <div className="text-sm text-gray-600 mt-2">
                     Don't have an account?{" "}
                     <span
-                        className="text-blue-600 hover:underline cursor-pointer"
+                        className="text-blue-600 dark:text-purple-400 hover:underline cursor-pointer"
                         onClick={() => navigate('/register')}
                     >
                         Register here
