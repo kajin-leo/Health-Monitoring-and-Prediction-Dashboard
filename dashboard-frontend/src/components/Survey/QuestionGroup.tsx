@@ -14,6 +14,7 @@ const QuestionGroup = ({ group, answers, onAnswer }) => {
             options={q.options}
             value={answers[q.id] || ""}
             onChange={onAnswer}
+            open={q.open}
           />
         ))}
       </div>
