@@ -5,6 +5,7 @@ import { Alert, Button, Input } from '@heroui/react';
 import { CircleX } from 'lucide-react';
 import Logo from '../../assets/豹豹Logo.svg';
 import LogoDark from '../../assets/豹豹Logo-Dark.svg';
+import JsonUploadField from '../../components/FileUpload/JsonUploadField';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -15,6 +16,8 @@ const Register = () => {
   const [isUsernameInvalid, setUsernameInvalid] = useState(false);
   const [isPasswordInvalid, setPasswordInvalid] = useState(false);
   const [isConfirmInvalid, setConfirmInvalid] = useState(false);
+  const [file, setFile] = useState<File | null>(null)
+  const [fileError, setFileError] = useState<string>("");
 
   const navigate = useNavigate();
 
@@ -43,8 +46,22 @@ const Register = () => {
       return;
     }
 
+    if (!file) {
+      setFileError("Please upload exercise data.");
+      setIsLoading(false);
+      return
+    }
+
+    setFileError("");
     try {
-      const { data } = await authClient.post('/auth/register', { username, password });
+      const form = new FormData()
+      form.append('username', username)
+      form.append('password', password)
+      form.append('exerciseJson', file)
+      const { data } = await authClient.post('/auth/register', form, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      // const { data } = await authClient.post('/auth/register', { username, password });
       console.log('Register success:', data);
       navigate('/login');
     } catch (error) {
@@ -103,6 +120,18 @@ const Register = () => {
           onValueChange={setConfirmPassword}
           errorMessage="Passwords do not match."
           isInvalid={isConfirmInvalid}
+        />
+
+        <JsonUploadField
+          label="Exercise Data"
+          placeholder="Drag a file here, or choose a file to upload."
+          helperText={!fileError ? "File permitted: JSON" : undefined}
+          errorText={fileError || undefined}
+          onFileSelected={(f) => {
+            setFile(f);
+            if (f) setFileError("");
+          }}
+          required
         />
 
         <Button type="submit" color="primary" isLoading={isLoading} onPress={handleRegister} className="mt-4">

@@ -13,27 +13,27 @@ public class MentalHealthAndDailyRoutine {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private double selfesteemScore;
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(nullable = false)
+    @Column(nullable = true)
     private MentalStrength selfesteemStrength;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private double procrastinationScore;
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(nullable = false)
+    @Column(nullable = true)
     private MentalStrength procrastinationStrength;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private double weekdaySleepingAvgDuration;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private double weekendSleepingAvgDuration;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private double totalSleepingDuration;
 
     public MentalHealthAndDailyRoutine() {}

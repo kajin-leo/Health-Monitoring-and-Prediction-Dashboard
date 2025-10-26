@@ -3,23 +3,34 @@ package com.cs79_1.interactive_dashboard.Controller;
 import com.cs79_1.interactive_dashboard.DTO.Authenticate.LoginRequest;
 import com.cs79_1.interactive_dashboard.DTO.Authenticate.LoginResponse;
 import com.cs79_1.interactive_dashboard.DTO.Authenticate.RegisterRequest;
+import com.cs79_1.interactive_dashboard.DTO.BatchImport.ImportProgress;
 import com.cs79_1.interactive_dashboard.Entity.User;
 import com.cs79_1.interactive_dashboard.Enum.Role;
 import com.cs79_1.interactive_dashboard.Repository.UserRepository;
 import com.cs79_1.interactive_dashboard.Security.JwtUtil;
+import com.cs79_1.interactive_dashboard.Service.BatchImportService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -31,10 +42,16 @@ public class AuthController {
     private UserRepository userRepository;
 
     @Autowired
+    private BatchImportService batchImportService;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Value("${upload.temp.path:temp/uploads}")
+    private String uploadTempPath;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
@@ -99,33 +116,29 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/register")
-
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
-        try {
-            if (userRepository.existsByUsername(registerRequest.getUsername())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Username already exists"));
-            }
-
-            User newUser = new User();
-            newUser.setUsername(registerRequest.getUsername());
-            newUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-            newUser.setRole(Role.USER);
-
-            User savedUser = userRepository.save(newUser);
-
-            logger.info("New {} registered: {}", savedUser.getRole().name(), savedUser.getUsername());
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "User registered successfully");
-            response.put("userId", savedUser.getId());
-            response.put("username", savedUser.getUsername());
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (Exception e) {
-            logger.error("Registration error: ", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error occurred during registration"));
+    @PostMapping(value = "/register", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<?> register(@Valid @RequestParam("username") String username,
+                                      @RequestParam("password") String password,
+                                      @RequestPart(value = "exerciseJson", required = false) MultipartFile exerciseJson) {
+        if (exerciseJson == null || exerciseJson.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "exerciseJson file is required"));
         }
+        String contentType = exerciseJson.getContentType();
+        boolean nameLooksJson = Optional.ofNullable(exerciseJson.getOriginalFilename())
+                .map(s -> s.toLowerCase().endsWith(".json")).orElse(false);
+        if (!"application/json".equalsIgnoreCase(contentType) && !nameLooksJson) {
+            return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                    .body(Map.of("error", "Only JSON file is permitted"));
+        }
+
+        BatchImportService.RegisterResult r = batchImportService
+                .registerWithExerciseData(username, password, exerciseJson);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "message", "User registered successfully",
+                "userId", r.userId(),
+                "username", r.username()
+        ));
     }
 
     @PostMapping("/refresh")

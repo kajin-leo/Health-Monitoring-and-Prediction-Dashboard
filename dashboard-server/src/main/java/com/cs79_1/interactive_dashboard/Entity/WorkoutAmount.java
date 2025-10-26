@@ -28,10 +28,10 @@ public class WorkoutAmount {
     @Column(nullable = false)
     private int timesMVPA3;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private int sumSecondsSED60;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private int timesSED60;
 
     @Column(nullable = false)

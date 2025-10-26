@@ -14,31 +14,31 @@ public class BodyMetrics {
     @JoinColumn(name="user_id", referencedColumnName = "id")
     private User user;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private double waistSize;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private double bicipital;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private double tricipital;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private double supraIliac;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private double subscapularis;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private double tannerStage;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private double skinFoldsSum;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private double height;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private double weight;
 
     public BodyMetrics() {}
