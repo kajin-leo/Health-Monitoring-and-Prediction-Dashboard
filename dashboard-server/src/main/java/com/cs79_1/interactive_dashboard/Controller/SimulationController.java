@@ -4,6 +4,7 @@ import com.cs79_1.interactive_dashboard.DTO.Simulation.*;
 import com.cs79_1.interactive_dashboard.DTO.Workout.WeeklyAggregatedHourDetails;
 import com.cs79_1.interactive_dashboard.Security.SecurityUtils;
 import com.cs79_1.interactive_dashboard.Service.*;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/simulation")
+@Slf4j
 public class SimulationController {
     @Autowired
     FlaskAPIService flaskAPIService;
@@ -28,7 +30,6 @@ public class SimulationController {
     @Autowired
     SseService sseService;
 
-    private static final Logger logger = LoggerFactory.getLogger(SimulationController.class);
     @Autowired
     private SimulationService simulationService;
 
@@ -46,7 +47,7 @@ public class SimulationController {
                 return ResponseEntity.ok(dto);
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -59,7 +60,7 @@ public class SimulationController {
             StructuredActivityDTO structuredActivityDTO = workoutAmountService.getStructuredActivityData(weeklyAggregatedHourDetails, isWeekend);
             return ResponseEntity.ok(structuredActivityDTO);
         }  catch (Exception e) {
-            logger.error("Error fetching simulation chart data, {}\n{}", e.getMessage(), e.getStackTrace());
+            log.error("Error fetching simulation chart data, {}\n{}", e.getMessage(), e.getStackTrace());
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -71,7 +72,7 @@ public class SimulationController {
             String classification = staticInfoService.getHFZClassification(userId);
             return ResponseEntity.ok(classification);
         } catch (Exception e) {
-           logger.error("Error fetching ground truth classification for user {}", userId, e);
+           log.error("Error fetching ground truth classification for user {}", userId, e);
            return ResponseEntity.internalServerError().build();
         }
     }
@@ -93,7 +94,7 @@ public class SimulationController {
             String taskId = simulationService.createPredictionTask(userId, predictionRequest);
             return ResponseEntity.ok(taskId);
         } catch (Exception e) {
-            logger.error("Error fetching simulation chart data for user {}", userId, e);
+            log.error("Error fetching simulation chart data for user {}", userId, e);
             return ResponseEntity.internalServerError().build();
         }
     }

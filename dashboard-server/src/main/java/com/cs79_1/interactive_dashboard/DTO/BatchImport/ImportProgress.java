@@ -1,9 +1,12 @@
 package com.cs79_1.interactive_dashboard.DTO.BatchImport;
 
+import lombok.Data;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class ImportProgress {
     private String jobId;
     private int totalNum;
@@ -46,89 +49,5 @@ public class ImportProgress {
         if (completed) {
             this.completedTime = LocalDateTime.now();
         }
-    }
-
-    public String getJobId() {
-        return jobId;
-    }
-
-    public void setJobId(String jobId) {
-        this.jobId = jobId;
-    }
-
-    public int getTotalNum() {
-        return totalNum;
-    }
-
-    public void setTotalNum(int totalNum) {
-        this.totalNum = totalNum;
-    }
-
-    public int getProcessedNum() {
-        return processedNum;
-    }
-
-    public void setProcessedNum(int processedNum) {
-        this.processedNum = processedNum;
-    }
-
-    public int getFailedNum() {
-        return failedNum;
-    }
-
-    public void setFailedNum(int failedNum) {
-        this.failedNum = failedNum;
-    }
-
-    public boolean isCompleted() {
-        return completed;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalDateTime getCompletedTime() {
-        return completedTime;
-    }
-
-    public void setCompletedTime(LocalDateTime completedTime) {
-        this.completedTime = completedTime;
-    }
-
-    public List<String> getErrors() {
-        return errors;
-    }
-
-    public void setErrors(List<String> errors) {
-        this.errors = errors;
-    }
-
-    public int getCurrent() {
-        return current;
-    }
-
-    public void setCurrent(int current) {
-        this.current = current;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
     }
 }

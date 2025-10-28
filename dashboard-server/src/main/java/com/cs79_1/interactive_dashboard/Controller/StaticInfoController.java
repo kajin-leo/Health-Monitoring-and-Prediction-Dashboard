@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.List;
 
 import com.cs79_1.interactive_dashboard.Service.WorkoutAmountService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @Controller
 @RequestMapping("/api/static")
 public class StaticInfoController {
@@ -41,9 +43,7 @@ public class StaticInfoController {
 
     @Autowired
     private WorkoutAmountService workoutAmountService;
-
-    private static final Logger logger = LoggerFactory.getLogger(StaticInfoController.class);
-
+    
     @GetMapping("/weight-metrics")
     public ResponseEntity<?> getWeightMetricsZScore() {
         long userId = SecurityUtils.getCurrentUserId();
@@ -147,7 +147,7 @@ public class StaticInfoController {
             BodyMetricsSummaryDTO dto = staticInfoService.getBodyMetricsSummary(userId);
             return ResponseEntity.ok(dto);
         } catch (Exception e) {
-            logger.error("Error fetching body metrics summary for user {}", userId, e);
+            log.error("Error fetching body metrics summary for user {}", userId, e);
             return ResponseEntity.internalServerError().build();
         }
     }

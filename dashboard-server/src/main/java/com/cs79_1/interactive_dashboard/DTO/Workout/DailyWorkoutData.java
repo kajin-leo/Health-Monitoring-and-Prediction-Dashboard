@@ -1,7 +1,10 @@
 package com.cs79_1.interactive_dashboard.DTO.Workout;
 
+import lombok.Data;
+
 import java.time.DayOfWeek;
 
+@Data
 public class DailyWorkoutData {
     DayOfWeek dayOfWeek;
     int MVPA;
@@ -22,18 +25,6 @@ public class DailyWorkoutData {
         this.Light = Light;
     }
 
-    public DayOfWeek getDayOfWeek() {
-        return dayOfWeek;
-    }
-
-    public int getMVPA() {
-        return MVPA;
-    }
-
-    public int getLight() {
-        return Light;
-    }
-
     public DailyWorkoutData addMVPA(int mVPA) {
         MVPA += mVPA;
         return this;
@@ -41,11 +32,6 @@ public class DailyWorkoutData {
 
     public DailyWorkoutData addLight(int light) {
         Light += light;
-        return this;
-    }
-
-    public DailyWorkoutData setDayOfWeek(DayOfWeek dayOfWeek) {
-        this.dayOfWeek = dayOfWeek;
         return this;
     }
 

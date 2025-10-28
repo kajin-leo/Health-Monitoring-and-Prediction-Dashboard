@@ -1,8 +1,11 @@
 package com.cs79_1.interactive_dashboard.DTO.Simulation;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class StructuredActivityDTO {
     List<Integer> MVPA;
     List<Integer> Light;
@@ -24,17 +27,5 @@ public class StructuredActivityDTO {
 
     public void addDescription(String description) {
         this.description.add(description);
-    }
-
-    public List<Integer> getMVPA() {
-        return MVPA;
-    }
-
-    public List<Integer> getLight() {
-        return Light;
-    }
-
-    public List<String> getDescription() {
-        return description;
     }
 }

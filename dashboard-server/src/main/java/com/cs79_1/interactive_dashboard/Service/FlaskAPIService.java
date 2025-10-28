@@ -3,6 +3,7 @@ package com.cs79_1.interactive_dashboard.Service;
 import com.cs79_1.interactive_dashboard.DTO.Simulation.AlteredActivityPredictionRequest;
 import com.cs79_1.interactive_dashboard.DTO.Simulation.PredictionResultDTO;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @Service
 public class FlaskAPIService {
-    private static final Logger logger = LoggerFactory.getLogger(FlaskAPIService.class);
-
     @Autowired
     private RestTemplate restTemplate;
 
@@ -29,11 +29,11 @@ public class FlaskAPIService {
     @PostConstruct
     public void init() {
         this.API_URL = String.format("http://%s:%s/api/predict", mlHost, mlPort);
-        logger.info("API_URL initialized to: {}", API_URL);
+        log.info("API_URL initialized to: {}", API_URL);
     }
 
     public Object getHeatmap(long userId) {
-        logger.info("URL:{}", API_URL);
+        log.info("URL:{}", API_URL);
 
         String url = API_URL + "?sid=" + userId;
         return restTemplate.getForObject(url, Object.class);

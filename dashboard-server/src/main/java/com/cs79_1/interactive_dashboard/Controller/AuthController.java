@@ -10,6 +10,7 @@ import com.cs79_1.interactive_dashboard.Repository.UserRepository;
 import com.cs79_1.interactive_dashboard.Security.JwtUtil;
 import com.cs79_1.interactive_dashboard.Service.BatchImportService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +36,8 @@ import java.util.concurrent.CompletableFuture;
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin
+@Slf4j
 public class AuthController {
-    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
-
     @Autowired
     private UserRepository userRepository;
 
@@ -79,10 +79,10 @@ public class AuthController {
                     user.getRole() != null ? user.getRole().name() : "USER"
             );
 
-            logger.info("User {} logged in successfully!", user.getUsername());
+            log.info("User {} logged in successfully!", user.getUsername());
             return ResponseEntity.ok(loginResponse);
         } catch (Exception e) {
-            logger.error("Login error: ", e);
+            log.error("Login error: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error occurred during logging in"));
         }
     }
@@ -102,7 +102,7 @@ public class AuthController {
 
             User savedUser = userRepository.save(newUser);
 
-            logger.info("New {} registered: {}", savedUser.getRole().name(), savedUser.getUsername());
+            log.info("New {} registered: {}", savedUser.getRole().name(), savedUser.getUsername());
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "User registered successfully");
@@ -111,7 +111,7 @@ public class AuthController {
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
-            logger.error("Registration error: ", e);
+            log.error("Registration error: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error occurred during registration"));
         }
     }
@@ -168,7 +168,7 @@ public class AuthController {
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            logger.error("Refresh token error: ", e);
+            log.error("Refresh token error: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error occurred during refreshing token"));
         }
     }
@@ -191,7 +191,7 @@ public class AuthController {
                 return ResponseEntity.ok(Map.of("valid", false));
             }
         } catch (Exception e) {
-            logger.error("Validate token error: ", e);
+            log.error("Validate token error: ", e);
             return ResponseEntity.ok(Map.of("valid", false));
         }
     }

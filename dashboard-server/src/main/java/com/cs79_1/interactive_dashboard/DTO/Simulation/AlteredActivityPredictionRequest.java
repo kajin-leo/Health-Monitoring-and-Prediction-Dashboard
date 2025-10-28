@@ -1,8 +1,11 @@
 package com.cs79_1.interactive_dashboard.DTO.Simulation;
 
+import lombok.Data;
+
 import java.util.HashMap;
 import java.util.Map;
 
+@Data
 public class AlteredActivityPredictionRequest {
     long userId;
     boolean isWeekdays;
@@ -22,37 +25,5 @@ public class AlteredActivityPredictionRequest {
 
     public void addLight(int startingHourIndex, double scale) {
         light.put(startingHourIndex, scale);
-    }
-
-    public long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
-
-    public boolean isWeekdays() {
-        return isWeekdays;
-    }
-
-    public void setWeekdays(boolean weekdays) {
-        isWeekdays = weekdays;
-    }
-
-    public Map<Integer, Double> getMvpa() {
-        return mvpa;
-    }
-
-    public void setMvpa(Map<Integer, Double> mvpa) {
-        this.mvpa = mvpa;
-    }
-
-    public Map<Integer, Double> getLight() {
-        return light;
-    }
-
-    public void setLight(Map<Integer, Double> light) {
-        this.light = light;
     }
 }

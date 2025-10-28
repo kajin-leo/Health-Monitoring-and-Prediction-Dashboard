@@ -1,8 +1,11 @@
 package com.cs79_1.interactive_dashboard.DTO.Workout;
 
+import lombok.Data;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Data
 public class WorkoutHeatmapDTO {
 
     private Map<Integer, Map<String, Double>> mvpaHeatmap = new LinkedHashMap<>();
@@ -15,13 +18,5 @@ public class WorkoutHeatmapDTO {
         lightHeatmap
                 .computeIfAbsent(hour, k -> new LinkedHashMap<>())
                 .put(binLabel, lightAvg);
-    }
-
-    public Map<Integer, Map<String, Double>> getMvpaHeatmap() {
-        return mvpaHeatmap;
-    }
-
-    public Map<Integer, Map<String, Double>> getLightHeatmap() {
-        return lightHeatmap;
     }
 }

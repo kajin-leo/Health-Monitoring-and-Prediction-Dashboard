@@ -2,6 +2,7 @@ package com.cs79_1.interactive_dashboard.Security;
 
 import com.cs79_1.interactive_dashboard.Entity.User;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class JwtUtil {
     @Autowired
@@ -21,15 +23,13 @@ public class JwtUtil {
 
     @Autowired
     private JwtDecoder jwtDecoder;
-
-    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
-
+    
     @PostConstruct
     public void checkInjection() {
-        logger.info("JwtEncoder injected: {}", jwtEncoder != null);
-        logger.info("JwtDecoder injected: {}", jwtDecoder != null);
-        logger.info("JwtEncoder class: {}", jwtEncoder.getClass().getName());
-        logger.info("JwtDecoder class: {}", jwtDecoder.getClass().getName());
+        log.info("JwtEncoder injected: {}", jwtEncoder != null);
+        log.info("JwtDecoder injected: {}", jwtDecoder != null);
+        log.info("JwtEncoder class: {}", jwtEncoder.getClass().getName());
+        log.info("JwtDecoder class: {}", jwtDecoder.getClass().getName());
     }
 
     @Value("${jwt.expiration}")

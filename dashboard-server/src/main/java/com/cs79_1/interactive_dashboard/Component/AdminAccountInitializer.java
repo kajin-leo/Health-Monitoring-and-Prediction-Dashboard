@@ -4,6 +4,7 @@ import com.cs79_1.interactive_dashboard.Entity.User;
 import com.cs79_1.interactive_dashboard.Enum.Role;
 import com.cs79_1.interactive_dashboard.Repository.UserRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +21,8 @@ import java.util.UUID;
 
 @Component
 @EnableScheduling
+@Slf4j
 public class AdminAccountInitializer {
-    private static final Logger logger = LoggerFactory.getLogger(AdminAccountInitializer.class);
-
     @Autowired
     private UserRepository userRepository;
 
@@ -37,17 +37,17 @@ public class AdminAccountInitializer {
     public void initializeAdminAccount() {
         try {
             if (!checkIfAdminExists()) {
-                logger.warn("No SUPERADMIN found. Creating default admin account...");
+                log.warn("No SUPERADMIN found. Creating default admin account...");
                 createDefaultAdmin();
             } else {
                 String adminUsername = getSuperadminUsername();
                 String adminPassword = getSuperadminPassword();
 
-                logger.info("Admin account already exists! Username: '{}' Password: '{}'", adminUsername, adminPassword);
+                log.info("Admin account already exists! Username: '{}' Password: '{}'", adminUsername, adminPassword);
             }
 
         } catch (Exception e) {
-            logger.error("Error during admin account initialisation: ", e);
+            log.error("Error during admin account initialisation: ", e);
         }
     }
 
@@ -59,7 +59,7 @@ public class AdminAccountInitializer {
         if(existingUser.isPresent()) {
             String attemptedName = adminName;
             adminName = adminName + String.valueOf(System.currentTimeMillis() % 100000);
-            logger.info("Admin already exists: {}, use {} instead! ", attemptedName, adminName);
+            log.info("Admin already exists: {}, use {} instead! ", attemptedName, adminName);
         }
 
         User adminUser = new User();
@@ -71,9 +71,9 @@ public class AdminAccountInitializer {
         adminUser.setRole(Role.SUPERADMIN);
 
         userRepository.save(adminUser);
-        logger.warn("===============");
-        logger.warn("Super Admin created with username '{}' and password '{}'", adminUser.getUsername(), adminPassword);
-        logger.warn("===============");
+        log.warn("===============");
+        log.warn("Super Admin created with username '{}' and password '{}'", adminUser.getUsername(), adminPassword);
+        log.warn("===============");
         redisTemplate.opsForValue().set("superadmin:username", adminName);
         redisTemplate.opsForValue().set("superadmin:password", adminPassword);
 
@@ -95,7 +95,7 @@ public class AdminAccountInitializer {
             redisTemplate.opsForValue().set("superadmin:password", newPassword);
             userRepository.save(admin);
 
-            logger.info("Admin account rolled password: '{}', at {}", newPassword, LocalDateTime.now());
+            log.info("Admin account rolled password: '{}', at {}", newPassword, LocalDateTime.now());
         }
     }
 

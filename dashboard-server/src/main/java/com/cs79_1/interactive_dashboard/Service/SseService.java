@@ -1,6 +1,7 @@
 package com.cs79_1.interactive_dashboard.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +11,9 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class SseService {
-    private static final Logger logger = LoggerFactory.getLogger(SseService.class);
     private final Map<String, SseEmitter> sseEmitters = new HashMap<>();
 
     public SseEmitter getOrRegisterEmitter(String taskId) {
@@ -49,10 +50,10 @@ public class SseService {
         try {
             emitter.send(SseEmitter.event().name("result").data(result));
             emitter.complete();
-            logger.info("Sent result for taskId: " + taskId);
+            log.info("Sent result for taskId: " + taskId);
         } catch (Exception e) {
             emitter.completeWithError(e);
-            logger.error("Failed to send result for taskId: " + taskId, e);
+            log.error("Failed to send result for taskId: " + taskId, e);
         } finally {
             removeEmitter(taskId);
         }

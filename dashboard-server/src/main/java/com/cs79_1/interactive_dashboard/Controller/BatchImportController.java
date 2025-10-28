@@ -3,6 +3,7 @@ package com.cs79_1.interactive_dashboard.Controller;
 import com.cs79_1.interactive_dashboard.DTO.BatchImport.FileInfo;
 import com.cs79_1.interactive_dashboard.Service.BatchImportService;
 import com.cs79_1.interactive_dashboard.DTO.BatchImport.ImportProgress;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/ops/import")
 public class BatchImportController {
@@ -34,9 +36,7 @@ public class BatchImportController {
 
     @Value("${upload.temp.path:temp/uploads}")
     private String uploadTempPath;
-
-    private static final Logger logger = LoggerFactory.getLogger(BatchImportController.class);
-
+    
     @PostMapping("/individual-attributes")
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPERADMIN')")
     public ResponseEntity<String> importIndividualAttributes(@RequestParam("file") MultipartFile file) {
@@ -69,20 +69,20 @@ public class BatchImportController {
                     if (finalTempFile != null) {
                         try {
                             Files.deleteIfExists(finalTempFile);
-                            logger.debug("Deleted temp file {}", finalTempFile);
+                            log.debug("Deleted temp file {}", finalTempFile);
                         } catch (IOException e) {
-                            logger.warn("Failed to delete temp file: " + finalTempFile, e);
+                            log.warn("Failed to delete temp file: " + finalTempFile, e);
                         }
                     }
                 }
             }).exceptionally(ex -> {
-                logger.error("Failed to import individual attributes", ex);
+                log.error("Failed to import individual attributes", ex);
                 if (finalTempFile != null) {
                     try {
                         Files.deleteIfExists(finalTempFile);
-                        logger.debug("Deleted temp file {}", finalTempFile);
+                        log.debug("Deleted temp file {}", finalTempFile);
                     } catch (IOException e) {
-                        logger.warn("Failed to delete temp file: " + finalTempFile, e);
+                        log.warn("Failed to delete temp file: " + finalTempFile, e);
                     }
                 }
 
@@ -91,7 +91,7 @@ public class BatchImportController {
 
             return ResponseEntity.ok(jobId);
         } catch (Exception e) {
-            logger.error("Error importing Individual Attributes: " + e.getMessage() + e.getStackTrace());
+            log.error("Error importing Individual Attributes: " + e.getMessage() + e.getStackTrace());
             return ResponseEntity.badRequest().body("Error importing Individual Attributes: " + e.getMessage());
         }
     }
@@ -142,7 +142,7 @@ public class BatchImportController {
             batchImportService.importWorkoutAmountData(file, participantId);
             return ResponseEntity.ok("Import WorkoutAmount data of " + participantId + "successful");
         } catch (Exception e) {
-            logger.error("Error importing WorkoutSingle: " + e.getMessage() + e.getStackTrace());
+            log.error("Error importing WorkoutSingle: " + e.getMessage() + e.getStackTrace());
             return ResponseEntity.badRequest().body("Error importing WorkoutSingle: " + e.getMessage());
         }
     }
@@ -168,7 +168,7 @@ public class BatchImportController {
                     cleanUpTempFiles(savedFiles);
                 }
             }).exceptionally(ex -> {
-                logger.error("Failed to batch import workout data: ", ex);
+                log.error("Failed to batch import workout data: ", ex);
                 cleanUpTempFiles(savedFiles);
 
                 return null;
@@ -176,7 +176,7 @@ public class BatchImportController {
 
             return ResponseEntity.ok(jobId);
         } catch (Exception e) {
-            logger.error("Error importing WorkoutBatch: " + e);
+            log.error("Error importing WorkoutBatch: " + e);
             return ResponseEntity.badRequest().body("Error importing WorkoutBatch: " + e.getMessage());
         }
     }
@@ -214,16 +214,16 @@ public class BatchImportController {
             String originalFilename = file.getOriginalFilename();
             String fileExtension = originalFilename != null ? originalFilename.substring(originalFilename.lastIndexOf(".")) : ".tmp";
             String tempFileName = UUID.randomUUID().toString() + fileExtension;
-            logger.debug("Createed temp name: {}", tempFileName);
+            log.debug("Createed temp name: {}", tempFileName);
 
             Path tempFile = uploadDir.resolve(tempFileName);
-            logger.debug("Created Path: {}", tempFile);
+            log.debug("Created Path: {}", tempFile);
 
             file.transferTo(tempFile);
-            logger.debug("Transfered file to path {}", tempFile);
+            log.debug("Transfered file to path {}", tempFile);
 
             savedFiles.add(new FileInfo(tempFile, file.getOriginalFilename()));
-            logger.debug("Saved file {} to {}", originalFilename, tempFile);
+            log.debug("Saved file {} to {}", originalFilename, tempFile);
         }
 
         return savedFiles;
@@ -233,9 +233,9 @@ public class BatchImportController {
         for (FileInfo tempFile : tempFiles) {
             try {
                 Files.deleteIfExists(tempFile.getTempPath());
-                logger.debug("Deleted temp file {}", tempFile.getTempPath());
+                log.debug("Deleted temp file {}", tempFile.getTempPath());
             } catch (IOException e) {
-                logger.warn("Failed to delete temp file: " + tempFile.getTempPath(), e);
+                log.warn("Failed to delete temp file: " + tempFile.getTempPath(), e);
             }
         }
     }

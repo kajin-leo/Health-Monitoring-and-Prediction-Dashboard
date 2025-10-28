@@ -3,9 +3,12 @@ package com.cs79_1.interactive_dashboard.Entity;
 import com.cs79_1.interactive_dashboard.Enum.Role;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.util.List;
 
 @Entity
+@Data
 @Table(name = "Users")
 public class User {
     @Id
@@ -61,126 +64,4 @@ public class User {
         this.password = password;
         this.sex = sex;
     }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public double getAgeMonth() {
-        return ageMonth;
-    }
-
-    public void setAgeMonth(double ageMonth) {
-        this.ageMonth = ageMonth;
-    }
-
-    public int getAgeYear() {
-        return ageYear;
-    }
-
-    public void setAgeYear(int ageYear) {
-        this.ageYear = ageYear;
-    }
-
-    public int getSex() {
-        return sex;
-    }
-
-    public void setSex(int sex) {
-        this.sex = sex;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public BodyMetrics getBodyMetrics() {
-        return bodyMetrics;
-    }
-
-    public void setBodyMetrics(BodyMetrics bodyMetrics) {
-        this.bodyMetrics = bodyMetrics;
-    }
-
-    public BodyComposition getBodyComposition() {
-        return bodyComposition;
-    }
-
-    public void setBodyComposition(BodyComposition bodyComposition) {
-        this.bodyComposition = bodyComposition;
-    }
-
-    public WeightMetrics getWeightMetrics() {
-        return weightMetrics;
-    }
-
-    public void setWeightMetrics(WeightMetrics weightMetrics) {
-        this.weightMetrics = weightMetrics;
-    }
-
-    public WeeklyIntake getWeeklyIntake() {
-        return weeklyIntake;
-    }
-
-    public void setWeeklyIntake(WeeklyIntake weeklyIntake) {
-        this.weeklyIntake = weeklyIntake;
-    }
-
-    public MentalHealthAndDailyRoutine getMentalHealthAndDailyRoutine() {
-        return mentalHealthAndDailyRoutine;
-    }
-
-    public String getAvatarUrl() { return avatarUrl;}
-
-    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl;}
-
-    public void setMentalHealthAndDailyRoutine(MentalHealthAndDailyRoutine mentalHealthAndDailyRoutine) {
-        this.mentalHealthAndDailyRoutine = mentalHealthAndDailyRoutine;
-    }
-
-    public List<WorkoutAmount> getWorkoutAmounts() {
-        return WorkoutAmounts;
-    }
-
-    public void setWorkoutAmounts(List<WorkoutAmount> WorkoutAmounts) {
-        this.WorkoutAmounts = WorkoutAmounts;
-    }
-
-
 }

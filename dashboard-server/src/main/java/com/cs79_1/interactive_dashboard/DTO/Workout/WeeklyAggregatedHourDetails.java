@@ -1,8 +1,11 @@
 package com.cs79_1.interactive_dashboard.DTO.Workout;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class WeeklyAggregatedHourDetails {
     String description;
     int count = 0;
@@ -24,41 +27,5 @@ public class WeeklyAggregatedHourDetails {
         this.ids.add(id);
         this.daysOfWeek.add(daysOfWeek);
         this.count++;
-    }
-
-    public int getMVPA(int dayIndex) {
-        return MVPA.get(dayIndex);
-    }
-
-    public int getLight(int dayIndex) {
-        return Light.get(dayIndex);
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public int getDaysOfWeek(int dayIndex) {
-        return daysOfWeek.get(dayIndex);
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public List<Integer> getMVPA() {
-        return MVPA;
-    }
-
-    public List<Integer> getLight() {
-        return Light;
-    }
-
-    public List<Long> getIds() {
-        return ids;
-    }
-
-    public List<Integer> getDaysOfWeek() {
-        return daysOfWeek;
     }
 }

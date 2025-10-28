@@ -29,7 +29,7 @@ public class WorkoutAmountService {
         return workoutAmountRepository.findByUserIdOrderByDateTimeAsc(userId);
     }
 
-    private Map<DayOfWeek, Map<Integer, DailyWorkoutData>> getAveragedTimeSegmentedData(Long userId) {
+    public Map<DayOfWeek, Map<Integer, DailyWorkoutData>> getAveragedTimeSegmentedData(Long userId) {
         List<WorkoutAmount> workoutAmounts = getWorkoutAmountRawData(userId);
         Map<DayOfWeek, Map<Integer, DailyWorkoutData>> result = new HashMap<>();
         Map<DayOfWeek, Map<Integer, Integer>> count = new HashMap<>();

@@ -1,7 +1,9 @@
 package com.cs79_1.interactive_dashboard.DTO.DietaryIntake;
 
+import lombok.Data;
+
+@Data
 public class FoodIntakeByCategory {
-    
     private String group;
     private double actual;
     private double recommended;
@@ -10,17 +12,5 @@ public class FoodIntakeByCategory {
         this.group = group;
         this.actual = actual;
         this.recommended = recommended;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public double getRecommended() {
-        return recommended;
-    }
-
-    public double getActual() {
-        return actual;
     }
 }

@@ -2,6 +2,7 @@ package com.cs79_1.interactive_dashboard.Controller;
 
 import com.cs79_1.interactive_dashboard.Component.AdminAccountInitializer;
 import com.cs79_1.interactive_dashboard.Service.AdminService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import java.io.File;
 
 @RestController
 @RequestMapping("/localbackend")
+@Slf4j
 //@CrossOrigin("localhost")
 public class LocalBackendController {
     @Autowired
@@ -23,15 +25,13 @@ public class LocalBackendController {
 
     @Value("${file.upload.path:/var/www/uploads/avatars/}")
     private String uploadPath;
-
-    private final static Logger logger = LoggerFactory.getLogger(LocalBackendController.class);
-
+    
     @GetMapping("/admin")
     public ResponseEntity<String> getAdmin() {
         String username = adminService.getSuperadminUsername();
         String password = adminService.getSuperadminPassword();
 
-        logger.info("Admin Fetched");
+        log.info("Admin Fetched");
         return ResponseEntity.ok(username + "\n" + password);
     }
 

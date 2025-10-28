@@ -5,6 +5,7 @@ import com.cs79_1.interactive_dashboard.DTO.Workout.WorkoutTimeOfDayDTO;
 import com.cs79_1.interactive_dashboard.DTO.Workout.WorkoutHeatmapDTO;
 import com.cs79_1.interactive_dashboard.Security.SecurityUtils;
 import com.cs79_1.interactive_dashboard.Service.WorkoutAmountService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/workout")
 public class WorkoutAmountController {
     @Autowired
     WorkoutAmountService workoutAmountService;
-
-    private static final Logger logger = LoggerFactory.getLogger(WorkoutAmountController.class);
-
+    
     @GetMapping("/daily/{dayOfWeek}")
     public ResponseEntity<WorkoutDailyDTO> dailyDetail(@PathVariable int dayOfWeek) {
         if(dayOfWeek < 0 || dayOfWeek > 6) {return new ResponseEntity<>(HttpStatus.BAD_REQUEST);}
@@ -34,7 +34,7 @@ public class WorkoutAmountController {
             WorkoutDailyDTO dto = workoutAmountService.getDailyWorkoutDetail(userId, dayOfWeek);
             return ResponseEntity.ok(dto);
         } catch (Exception e) {
-            logger.error("Failed to get daily workout detail for {} at {}: ", userId, dayOfWeek, e);
+            log.error("Failed to get daily workout detail for {} at {}: ", userId, dayOfWeek, e);
             return ResponseEntity.internalServerError().build();
         }
 
@@ -48,7 +48,7 @@ public class WorkoutAmountController {
             WorkoutTimeOfDayDTO dto = workoutAmountService.getTimeOfDay(userId, time);
             return ResponseEntity.ok(dto);
         } catch (Exception e) {
-            logger.error("Failed to get daily workout time for {} at {}: ", userId, time, e);
+            log.error("Failed to get daily workout time for {} at {}: ", userId, time, e);
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -64,7 +64,7 @@ public class WorkoutAmountController {
             }
             return ResponseEntity.ok(list.toArray(new WorkoutTimeOfDayDTO[0]));
         }  catch (Exception e) {
-            logger.error("Failed to get daily workout time for {}", userId, e);
+            log.error("Failed to get daily workout time for {}", userId, e);
             return ResponseEntity.internalServerError().build();
         }
     }

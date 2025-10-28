@@ -2,8 +2,10 @@ package com.cs79_1.interactive_dashboard.Entity;
 
 import com.cs79_1.interactive_dashboard.Enum.UserPreference.UIAppearance;
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
+@Data
 public class UserPreference {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,38 +26,6 @@ public class UserPreference {
 
     public UserPreference(User user, UIAppearance appearance) {
         this.user = user;
-        this.appearance = appearance;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public long getVersion() {
-        return version;
-    }
-
-    public void setVersion(long version) {
-        this.version = version;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public UIAppearance getAppearance() {
-        return appearance;
-    }
-
-    public void setAppearance(UIAppearance appearance) {
         this.appearance = appearance;
     }
 }

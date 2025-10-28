@@ -1,5 +1,8 @@
 package com.cs79_1.interactive_dashboard.DTO.Workout;
 
+import lombok.Data;
+
+@Data
 public class HourlyDailyWorkoutData {
     String timeSegmentStarting;
     int mvpa;
@@ -12,17 +15,5 @@ public class HourlyDailyWorkoutData {
         this.timeSegmentStarting = timeSegmentStarting;
         this.light = light;
         this.mvpa = mvpa;
-    }
-
-    public String getTimeSegmentStarting() {
-        return timeSegmentStarting;
-    }
-
-    public int getMvpa() {
-        return mvpa;
-    }
-
-    public int getLight() {
-        return light;
     }
 }

@@ -3,8 +3,10 @@ package com.cs79_1.interactive_dashboard.Entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
+@Data
 public class BodyMetrics {
     @Id
     @GeneratedValue
@@ -45,89 +47,5 @@ public class BodyMetrics {
 
     public BodyMetrics(User user) {
         this.user = user;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public double getWaistSize() {
-        return waistSize;
-    }
-
-    public void setWaistSize(double waistSize) {
-        this.waistSize = waistSize;
-    }
-
-    public double getBicipital() {
-        return bicipital;
-    }
-
-    public void setBicipital(double bicipital) {
-        this.bicipital = bicipital;
-    }
-
-    public double getTricipital() {
-        return tricipital;
-    }
-
-    public void setTricipital(double tricipital) {
-        this.tricipital = tricipital;
-    }
-
-    public double getSupraIliac() {
-        return supraIliac;
-    }
-
-    public void setSupraIliac(double supraIliac) {
-        this.supraIliac = supraIliac;
-    }
-
-    public double getSubscapularis() {
-        return subscapularis;
-    }
-
-    public void setSubscapularis(double subscapularis) {
-        this.subscapularis = subscapularis;
-    }
-
-    public double getTannerStage() {
-        return tannerStage;
-    }
-
-    public void setTannerStage(double tannerStage) {
-        this.tannerStage = tannerStage;
-    }
-
-    public double getSkinFoldsSum() {
-        return skinFoldsSum;
-    }
-
-    public void setSkinFoldsSum(double skinFoldsSum) {
-        this.skinFoldsSum = skinFoldsSum;
-    }
-
-    public double getHeight() {
-        return height;
-    }
-
-    public void setHeight(double height) {
-        this.height = height;
-    }
-
-    public double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(double weight) {
-        this.weight = weight;
     }
 }

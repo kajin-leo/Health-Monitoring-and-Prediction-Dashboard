@@ -6,6 +6,7 @@ import com.cs79_1.interactive_dashboard.Entity.User;
 import com.cs79_1.interactive_dashboard.Security.JwtUtil;
 import com.cs79_1.interactive_dashboard.Security.SecurityUtils;
 import com.cs79_1.interactive_dashboard.Service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.security.SecurityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/user/")
 public class UserInfoController {
@@ -28,9 +30,7 @@ public class UserInfoController {
 
     @Autowired
     private JwtUtil jwtUtil;
-
-    private final static Logger logger = LoggerFactory.getLogger(UserInfoController.class);
-
+    
     @GetMapping("/info")
     public ResponseEntity<UserInfoResponse> getInfo(){
         Long userId = SecurityUtils.getCurrentUserId();
@@ -44,10 +44,10 @@ public class UserInfoController {
             String appearance = userService.getOrCreateUserPreference(userId).getAppearance().name();
             UserInfoResponse userInfoResponse = new UserInfoResponse(username, firstName, lastName, user.getAgeYear(), user.getSex(), user.getId(), appearance);
 
-            logger.info("User {} fetched info", username);
+            log.info("User {} fetched info", username);
             return ResponseEntity.ok(userInfoResponse);
         } catch (Exception e) {
-            logger.error("Error fetching userinfo of userid {}", userId, e);
+            log.error("Error fetching userinfo of userid {}", userId, e);
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -59,7 +59,7 @@ public class UserInfoController {
             AvatarResponseDTO dto = new AvatarResponseDTO(user.getId(), user.getAvatarUrl());
             return ResponseEntity.ok(dto);
         } catch (Exception e) {
-            logger.error("Error fetching avatar for user {}", userId, e);
+            log.error("Error fetching avatar for user {}", userId, e);
             return ResponseEntity.internalServerError().build();
         }
     }
