@@ -11,6 +11,7 @@ type Resp = { fatPct: number; musclePct: number; waterPct: number; };
 
 export default function FatMuscleWaterCard() {
     const [data, setData] = useState<Resp | null>(null);
+    const [error, setError] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -18,7 +19,7 @@ export default function FatMuscleWaterCard() {
                 const r = await apiClient.get("/static/body-composition"); 
                 setData(r.data as Resp);
             } catch (e) {
-                setData({ fatPct: 22, musclePct: 45, waterPct: 33 });
+                setError(true);
                 console.error("body-composition api error:", e);
             }
         })();
@@ -55,6 +56,14 @@ export default function FatMuscleWaterCard() {
             },
         },
     };
+    
+    if (error || !data) {
+        return (
+            <div className="w-full h-full flex items-center justify-center backdrop-blur-sm text-gray-400 dark:text-gray-300">
+                No data
+            </div>
+        );
+    }
 
     return (
         <div className="rounded-xl w-full h-full flex flex-col pb-5">

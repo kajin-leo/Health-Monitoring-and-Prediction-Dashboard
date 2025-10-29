@@ -17,31 +17,31 @@ public class BodyMetrics {
     private User user;
 
     @Column(nullable = true)
-    private double waistSize;
+    private Double waistSize;
 
     @Column(nullable = true)
-    private double bicipital;
+    private Double bicipital;
 
     @Column(nullable = true)
-    private double tricipital;
+    private Double tricipital;
 
     @Column(nullable = true)
-    private double supraIliac;
+    private Double supraIliac;
 
     @Column(nullable = true)
-    private double subscapularis;
+    private Double subscapularis;
 
     @Column(nullable = true)
-    private double tannerStage;
+    private Double tannerStage;
 
     @Column(nullable = true)
-    private double skinFoldsSum;
+    private Double skinFoldsSum;
 
     @Column(nullable = true)
-    private double height;
+    private Double height;
 
     @Column(nullable = true)
-    private double weight;
+    private Double weight;
 
     public BodyMetrics() {}
 

@@ -51,6 +51,7 @@ function minutesToLabel(mins: number | undefined) {
 export default function SleepGauges() {
     const [data, setData] = useState<ApiResp | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -59,11 +60,7 @@ export default function SleepGauges() {
                 setData(resp.data as ApiResp);
             } catch {
 
-                setData({
-                    thisWeekAvgMin: 462,
-                    schoolNightAvgHrs: 8.5,
-                    weekendNightAvgHrs: 9.0,
-                });
+                setError(true);
             } finally {
                 setLoading(false);
             }
@@ -79,6 +76,15 @@ export default function SleepGauges() {
         { title: "School Night", value: schoolMin },
         { title: "Weekend Night", value: weekendMin },
     ]), [thisWeekMin, schoolMin, weekendMin]);
+
+
+    if (error || !data) {
+        return (
+            <div className="w-full h-full flex items-center justify-center backdrop-blur-sm text-gray-400 dark:text-gray-300">
+                No data
+            </div>
+        );
+    }
 
     return (
         <div className="w-full h-full grid grid-cols-1 md:grid-cols-3 gap-1">

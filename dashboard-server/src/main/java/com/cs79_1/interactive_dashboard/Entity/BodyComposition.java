@@ -16,52 +16,52 @@ public class BodyComposition {
     private User user;
 
     @Column(nullable = true)
-    private double fatPercentage;
+    private Double fatPercentage;
 
     @Enumerated(EnumType.ORDINAL)
     @Column(nullable = true)
     private HFZClassification hfzFatPercentage;
 
     @Column(nullable = true)
-    private double fatMass;
+    private Double fatMass;
 
     @Enumerated(EnumType.ORDINAL)
     @Column(nullable = true)
     private HFZClassification hfzFatMass;
 
     @Column(nullable = true)
-    private double BMI;
+    private Double BMI;
 
     @Enumerated(EnumType.ORDINAL)
     @Column(nullable = true)
     private HFZClassification hfzBMI;
 
     @Column(nullable = true)
-    private double fatAmount;
+    private Double fatAmount;
 
     @Column(nullable = true)
-    private double ffmAmount; //Fat-free Mass
+    private Double ffmAmount; //Fat-free Mass
 
     @Column(nullable = true)
-    private double muscleAmount;
+    private Double muscleAmount;
 
     @Column(nullable = true)
-    private double waterAmount;
+    private Double waterAmount;
 
     @Column(nullable = true)
-    private double waterPercentage;
+    private Double waterPercentage;
 
     @Column(nullable = true)
-    private double wlgr625; // Whole-body bioelectrical impedance - resistance 6.25khz
+    private Double wlgr625; // Whole-body bioelectrical impedance - resistance 6.25khz
 
     @Column(nullable = true)
-    private double wlgx625; // Whole-body bioelectrical impedance - reactance 6.25khz
+    private Double wlgx625; // Whole-body bioelectrical impedance - reactance 6.25khz
 
     @Column(nullable = true)
-    private double wlgr50; // 50khz
+    private Double wlgr50; // 50khz
 
     @Column(nullable = true)
-    private double wlgx50; // 50khz
+    private Double wlgx50; // 50khz
 
     public BodyComposition() {}
 

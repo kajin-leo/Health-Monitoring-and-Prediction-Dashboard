@@ -39,6 +39,7 @@ interface weightmetrics {
 const WeightMetrics = () => {
     const [zScores, setZScores] = useState<ZScores | null>(null);
     const [weightMetric, setWeightMetric] = useState<weightmetrics | null>(null);
+    const [error, setError] = useState(false);
 
     useEffect(() => {
         const fetchWeightStatus = async () => {
@@ -77,6 +78,8 @@ const WeightMetrics = () => {
                 setWeightMetric(weightdata);
                 setZScores(zdata);
             } catch (error) {
+                setError(true);
+                /*
                 const data: ZScores = {
                     iotf: 0,
                     cachera: 0,
@@ -107,7 +110,8 @@ const WeightMetrics = () => {
                     cdcP: 0,
                 }
                 setWeightMetric(weightdata);
-                setZScores(data);
+                setZScores(data);*/
+                console.error("weight-metrics api error:", error);
             }
         };
         fetchWeightStatus();
@@ -148,6 +152,15 @@ const WeightMetrics = () => {
     }
     const vars = ['L', 'M', 'S'];
     const decimalCount = 2;
+
+    if (error || !zScores || !weightMetric) {
+        return (
+            <div className="w-full h-full flex items-center justify-center backdrop-blur-sm text-gray-400 dark:text-gray-300">
+                No data
+            </div>
+        );
+    }
+
 
     return (
         <div className='w-full h-full justify-between flex flex-col overflow-visible'>

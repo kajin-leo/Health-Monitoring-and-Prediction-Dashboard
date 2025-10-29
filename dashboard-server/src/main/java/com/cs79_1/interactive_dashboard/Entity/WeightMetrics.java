@@ -15,80 +15,80 @@ public class WeightMetrics {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @Column(nullable = false)
-    private double iotfL;
+    @Column(nullable = true)
+    private Double iotfL;
 
-    @Column(nullable = false)
-    private double iotfM;
+    @Column(nullable = true)
+    private Double iotfM;
 
-    @Column(nullable = false)
-    private double iotfS;
+    @Column(nullable = true)
+    private Double iotfS;
 
-    @Column(nullable = false)
-    private double iotfZ;
+    @Column(nullable = true)
+    private Double iotfZ;
 
-    @Column(nullable = false)
-    private double iotfPercentile;
+    @Column(nullable = true)
+    private Double iotfPercentile;
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(nullable = false)
+    @Column(nullable = true)
     private WeightClassification iotfClassification;
 
-    @Column(nullable = false)
-    private double cacheraL;
+    @Column(nullable = true)
+    private Double cacheraL;
 
-    @Column(nullable = false)
-    private double cacheraM;
+    @Column(nullable = true)
+    private Double cacheraM;
 
-    @Column(nullable = false)
-    private double cacheraS;
+    @Column(nullable = true)
+    private Double cacheraS;
 
-    @Column(nullable = false)
-    private double cacheraZ;
+    @Column(nullable = true)
+    private Double cacheraZ;
 
-    @Column(nullable = false)
-    private double cacheraPercentile;
+    @Column(nullable = true)
+    private Double cacheraPercentile;
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(nullable = false)
+    @Column(nullable = true)
     private WeightClassification cacheraClassification;
 
-    @Column(nullable = false)
-    private double omsL;
+    @Column(nullable = true)
+    private Double omsL;
 
-    @Column(nullable = false)
-    private double omsM;
+    @Column(nullable = true)
+    private Double omsM;
 
-    @Column(nullable = false)
-    private double omsS;
+    @Column(nullable = true)
+    private Double omsS;
 
-    @Column(nullable = false)
-    private double omsZ;
+    @Column(nullable = true)
+    private Double omsZ;
 
-    @Column(nullable = false)
-    private double omsPercentile;
+    @Column(nullable = true)
+    private Double omsPercentile;
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(nullable = false)
+    @Column(nullable = true)
     private WeightClassification omsClassification;
 
-    @Column(nullable = false)
-    private double cdcL;
+    @Column(nullable = true)
+    private Double cdcL;
 
-    @Column(nullable = false)
-    private double cdcM;
+    @Column(nullable = true)
+    private Double cdcM;
 
-    @Column(nullable = false)
-    private double cdcS;
+    @Column(nullable = true)
+    private Double cdcS;
 
-    @Column(nullable = false)
-    private double cdcZ;
+    @Column(nullable = true)
+    private Double cdcZ;
 
-    @Column(nullable = false)
-    private double cdcPercentile;
+    @Column(nullable = true)
+    private Double cdcPercentile;
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(nullable = false)
+    @Column(nullable = true)
     private WeightClassification cdcClassification;
 
     public WeightMetrics() {}

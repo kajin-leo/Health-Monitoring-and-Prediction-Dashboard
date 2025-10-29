@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { apiClient } from "../../../service/axios";
 import { Spinner } from "@heroui/react";
+import { set } from "react-hook-form";
 
 type CategoryColor = {
     bg: string;
@@ -33,7 +34,6 @@ const categoryColors = (classification: string) => {
     return catColor;
 }
 
-/* ---------- 内部统一结构 ---------- */
 type Metrics = {
     height: number;
     weight: number;
@@ -47,7 +47,7 @@ const ArcGauge: React.FC<{
     value: number;
     min?: number;
     max?: number;
-    size?: number;        // 宽度；高度= size/2
+    size?: number;        
     strokeWidth?: number;
 }> = ({ value, min = 10, max = 40, size = 220, strokeWidth = 12 }) => {
     const v = Math.min(Math.max(value, min), max);
@@ -60,7 +60,7 @@ const ArcGauge: React.FC<{
     const arcPath = `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`;
     const len = Math.PI * r;
 
-    const angle = Math.PI * (1 - pct); // 左->右
+    const angle = Math.PI * (1 - pct); 
     const knobX = cx + r * Math.cos(angle);
     const knobY = cy + r * Math.sin(angle);
 
@@ -88,7 +88,6 @@ const ArcGauge: React.FC<{
     );
 };
 
-/* ---------- 简洁三列 Tile（无徽标） ---------- */
 const Tile: React.FC<{ label: string; value: string; unit?: string }> = ({ label, value, unit }) => {
     return (
         <div className="rounded-2xl bg-white dark:bg-gray-900 shadow-sm border border-white/60 dark:border-white/20 px-2 h-20 flex flex-col items-center justify-center text-center">
@@ -106,7 +105,6 @@ const Tile: React.FC<{ label: string; value: string; unit?: string }> = ({ label
     );
 };
 
-/* ---------- 主组件 ---------- */
 const BmiCard = ({ mock, ...props }: { mock?: Metrics, props?: React.ReactNode }) => {
     const [metrics, setMetrics] = useState<Metrics>();
     const [catColor, setColor] = useState(categoryColors('-'));
@@ -122,6 +120,8 @@ const BmiCard = ({ mock, ...props }: { mock?: Metrics, props?: React.ReactNode }
             setDataReady(true);
         } catch (error) {
             console.error(error);
+            setDataReady(true);
+            setMetrics(undefined);
         }
     }
 
@@ -134,6 +134,15 @@ const BmiCard = ({ mock, ...props }: { mock?: Metrics, props?: React.ReactNode }
         return (
             <div className="w-full h-full flex flex-col items-center justify-center">
                 <Spinner />
+            </div>
+        )
+    }
+    
+    if (!metrics) {
+        // No data overlay
+        return (
+           <div className="w-full h-full flex items-center justify-center backdrop-blur-sm text-gray-400 dark:text-gray-300">
+                No data
             </div>
         )
     }
@@ -154,7 +163,6 @@ const BmiCard = ({ mock, ...props }: { mock?: Metrics, props?: React.ReactNode }
                 </div>
             </div>
 
-            {/* 上半：弧线（固定高） + 居中 BMI 数字（完全分区，不重叠） */}
             <div className=" flex flex-col items-center">
                 <div className="h-fit w-full flex items-center justify-center">
                     <ArcGauge value={metrics?.bmi ?? 22} size={220} />
@@ -167,7 +175,6 @@ const BmiCard = ({ mock, ...props }: { mock?: Metrics, props?: React.ReactNode }
                 </div>
             </div>
 
-            {/* 下半：固定三列，一排展示；无任何 badge */}
             <div className="grid grid-cols-3 gap-3 mt-5">
                 <Tile label="Height" value={metrics?.height != null ? metrics.height.toFixed(1) : "—"} unit="cm" />
                 <Tile label="Weight" value={metrics?.weight != null ? metrics.weight.toFixed(1) : "—"} unit="kg" />

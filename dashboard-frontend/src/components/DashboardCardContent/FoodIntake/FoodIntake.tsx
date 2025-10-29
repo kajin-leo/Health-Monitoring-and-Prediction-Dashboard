@@ -80,10 +80,8 @@ function RingLayer({
 function toFixed1(n: number) { return Number.isFinite(n) ? n.toFixed(1) : "0.0"; }
 
 const FoodIntakeRings: React.FC<FoodIntakeResultDto> = (data) => {
-  //const actualValues = [data.energy, data.protective, data.bodyBuilding];
-  //const recAbs = [data.recEnergy, data.recProtective, data.recBodyBuilding];
+  
   const pctOfRec = [data.pctEnergy, data.pctProtective, data.pctBodyBuilding];
-  //const pctOfDaily = [data.dailyPctEnergy ?? 0,data.dailyPctProtective ?? 0,data.dailyPctBodyBuilding ?? 0,];
 
   const chartData = {
     labels: labels.map((label) => label),
@@ -125,19 +123,6 @@ const FoodIntakeRings: React.FC<FoodIntakeResultDto> = (data) => {
       </h1>
       <div className="h-full w-full flex gap-0 items-center justify-between flex-1 p-2">
         <div className="h-full w-full min-w-0 min-h-0 drop-shadow-lg">
-          {/* <svg className="h-full w-full drop-shadow-lg" viewBox="0 0 200 200" role="img" aria-label="Food intake rings">
-            {radii.map((r, idx) => (
-              <RingLayer
-                key={labels[idx]}
-                cx={100}
-                cy={100}
-                r={r}
-                trackColor={ringColors[idx].recommended}
-                fillColor={ringColors[idx].actual}
-                arcPct={Math.min(1, Math.max(0, (pctOfRec[idx] || 0) / 100))}
-              />
-            ))}
-          </svg> */}
           <Doughnut data={chartData} options={chartOptions} className="dark:brightness-70 dark:saturate-120 dark:contrast-150"/>
         </div>
 
@@ -164,6 +149,8 @@ const FoodIntakeRings: React.FC<FoodIntakeResultDto> = (data) => {
 
 const FoodIntake: React.FC = () => {
   const [data, setData] = useState<FoodIntakeResultDto | null>(null);
+  const [error, setError] = useState(false);
+
 
   useEffect(() => {
     async function fetchData() {
@@ -187,26 +174,20 @@ const FoodIntake: React.FC = () => {
         });
       } catch (e) {
         console.error("food-intake api error:", e);
-        // final demo fallback
-        const energy = 50, protective = 35, bodyBuilding = 15;
-        const total = energy + protective + bodyBuilding;
-        const recEnergy = 0.5 * total, recProtective = 0.35 * total, recBodyBuilding = 0.15 * total;
-        setData({
-          energy, protective, bodyBuilding,
-          recEnergy, recProtective, recBodyBuilding,
-          pctEnergy: (energy / recEnergy) * 100,
-          pctProtective: (protective / recProtective) * 100,
-          pctBodyBuilding: (bodyBuilding / recBodyBuilding) * 100,
-          dailyPctEnergy: (energy / total) * 100,
-          dailyPctProtective: (protective / total) * 100,
-          dailyPctBodyBuilding: (bodyBuilding / total) * 100,
-        });
+        setError(true);
       }
     }
     fetchData();
   }, []);
 
-  if (!data) return <div>No data</div>;
+  if (error || !data) {
+    return (
+      <div className="w-full h-full flex items-center justify-center backdrop-blur-sm text-gray-400 dark:text-gray-300">
+        No data
+      </div>
+    );
+  }
+
   return (
     <div id="Dietary Intake Container" className="w-full h-full">
       <FoodIntakeRings {...data} />

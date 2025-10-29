@@ -164,8 +164,8 @@ const Profile: React.FC = () => {
 
 
   return (
-    <div className="p-4 pl-2 h-full">
-      <DashboardCard className="h-full" noHover={true}>
+    <div className="w-full p-4 h-full">
+      <DashboardCard className="h-full w-full" noHover={true}>
         <div className="h-full p-4">
           <div className="text-center">
             <h3 className="font-semibold mb-2">Profile picture</h3>
@@ -177,12 +177,14 @@ const Profile: React.FC = () => {
       
           <Form
             aria-label="Profile Form"
-            className="w-full max-w-md flex flex-col gap-4"
+            className="w-full flex flex-col gap-4"
             onSubmit={handleSubmit(onSubmit)}
             onReset={() => {
               reset(profile ?? defaultProfile);
             }}
           >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+
             <Controller
               name="username"
               control={control}
@@ -190,7 +192,7 @@ const Profile: React.FC = () => {
               render={({ field }) => (
                 <Input
                   value={field.value ?? ""}
-                  onValueChange={(val) => field.onChange(val)}
+                  onValueChange={field.onChange}
                   onBlur={field.onBlur}
                   isRequired
                   errorMessage={errors.username?.message as string}
@@ -198,6 +200,7 @@ const Profile: React.FC = () => {
                   labelPlacement="outside"
                   placeholder="Enter your username"
                   type="text"
+                  className="col-span-1 md:col-span-2 w-full"
                 />
               )}
             />
@@ -214,6 +217,7 @@ const Profile: React.FC = () => {
                   labelPlacement="outside"
                   placeholder="Enter your first name"
                   type="text"
+                  className="col-span-1 md:col-span-2 w-full"
                 />
               )}
             />
@@ -230,6 +234,7 @@ const Profile: React.FC = () => {
                   labelPlacement="outside"
                   placeholder="Enter your last name"
                   type="text"
+                  className="col-span-1 md:col-span-2 w-full"
                 />
               )}
             />
@@ -238,17 +243,17 @@ const Profile: React.FC = () => {
               name="password"
               control={control}
               rules={{ minLength: { value: 6, message: "Minimum 6 chars" } }}
-
               render={({ field }) => (
                 <Input
                   value={field.value ?? ""}
-                  onValueChange={(val) => field.onChange(val)}
+                  onValueChange={field.onChange}
                   onBlur={field.onBlur}
                   errorMessage={errors.password?.message as string}
                   label="Password (Minimal 6 characters)"
                   labelPlacement="outside"
                   placeholder="Enter new password"
                   type="password"
+                  className="col-span-1 md:col-span-2 w-full"
                 />
               )}
             />
@@ -257,11 +262,10 @@ const Profile: React.FC = () => {
               name="ageYear"
               control={control}
               rules={{ min: { value: 9, message: "Age must be >= 9" }, max: { value: 18, message: "Age must be <= 18" } }}
-
               render={({ field }) => (
                 <Input
                   value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
-                  onValueChange={(val) => field.onChange(val)}
+                  onValueChange={field.onChange}
                   onBlur={field.onBlur}
                   errorMessage={errors.ageYear?.message as string}
                   label="Age (Years)"
@@ -269,6 +273,7 @@ const Profile: React.FC = () => {
                   type="number"
                   min={0}
                   placeholder="e.g. 25"
+                  className="col-span-1 w-full"
                 />
               )}
             />
@@ -280,6 +285,7 @@ const Profile: React.FC = () => {
               render={({ field }) => (
                 <Select
                   label="Sex"
+                  labelPlacement="outside"
                   isRequired
                   placeholder="Select your sex"
                   selectedKeys={
@@ -296,6 +302,7 @@ const Profile: React.FC = () => {
                   ref={field.ref}
                   errorMessage={errors.sex?.message as string}
                   isInvalid={!!errors.sex}
+                  className="col-span-1 w-full"
                 >
                   <SelectItem key="1">Male</SelectItem>
                   <SelectItem key="2">Female</SelectItem>
@@ -303,17 +310,71 @@ const Profile: React.FC = () => {
               )}
             />
 
+            <Controller
+              name="intakePreference"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  label="Intake Preference"
+                  labelPlacement="outside"
+                  placeholder="Select your intake"
+                  selectedKeys={field.value ? new Set([field.value]) : new Set()}
+                  onSelectionChange={(keys) => {
+                    const key = Array.from(keys as Set<string>)[0];
+                    field.onChange(key);
+                  }}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  ref={field.ref}
+                  errorMessage={errors.intakePreference?.message as string}
+                  className="col-span-1 w-full"
+                >
+                  <SelectItem key="Balanced">Balanced</SelectItem>
+                  <SelectItem key="High-Protein">High-Protein</SelectItem>
+                  <SelectItem key="Low-Carb">Low-Carb</SelectItem>
+                  <SelectItem key="Vegetarian">Vegetarian</SelectItem>
+                </Select>
+              )}
+            />
 
-            <div className="flex gap-2">
-              <Button color="primary" type="submit" disabled={saving}>
-                {saving ? "Saving…" : "Save"}
-              </Button>
-              <Button type="reset" variant="flat">
-                Cancel
-              </Button>
-            </div>
-          </Form>
-        </div>
+            <Controller
+              name="movementPreference"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  label="Movement Preference"
+                  labelPlacement="outside"
+                  placeholder="Select your movement"
+                  selectedKeys={field.value ? new Set([field.value]) : new Set()}
+                  onSelectionChange={(keys) => {
+                    const key = Array.from(keys as Set<string>)[0];
+                    field.onChange(key);
+                  }}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  ref={field.ref}
+                  errorMessage={errors.movementPreference?.message as string}
+                  className="col-span-1 w-full"
+                >
+                  <SelectItem key="Cardio">Cardio</SelectItem>
+                  <SelectItem key="Strength">Strength</SelectItem>
+                  <SelectItem key="Mixed">Mixed</SelectItem>
+                  <SelectItem key="Flexibility">Flexibility</SelectItem>
+                </Select>
+              )}
+            />  
+          </div>
+
+          <div className="flex gap-2">
+            <Button color="primary" type="submit" disabled={saving}>
+              {saving ? "Saving…" : "Save"}
+            </Button>
+            <Button type="reset" variant="flat">
+              Cancel
+            </Button>
+          </div>
+        </Form>
+      </div>
 
       </DashboardCard>
     </div>

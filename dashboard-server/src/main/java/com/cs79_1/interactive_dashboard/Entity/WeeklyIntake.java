@@ -14,56 +14,56 @@ public class WeeklyIntake {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @Column(nullable = false)
-    private double cereals;
+    @Column(nullable = true)
+    private Double cereals;
 
-    @Column(nullable = false)
-    private double vegetablesAndLegumes;
+    @Column(nullable = true)
+    private Double vegetablesAndLegumes;
 
-    @Column(nullable = false)
-    private double fruit;
+    @Column(nullable = true)
+    private Double fruit;
 
-    @Column(nullable = false)
-    private double dairy;
+    @Column(nullable = true)
+    private Double dairy;
 
-    @Column(nullable = false)
-    private double fatsOils;
+    @Column(nullable = true)
+    private Double fatsOils;
 
-    @Column(nullable = false)
-    private double meatFishPoultryEggs;
+    @Column(nullable = true)
+    private Double meatFishPoultryEggs;
 
-    @Column(nullable = false)
-    private double drinks;
+    @Column(nullable = true)
+    private Double drinks;
 
-    @Column(nullable = false)
-    private double extras;
+    @Column(nullable = true)
+    private Double extras;
 
-    @Column(nullable = false)
-    private double other;
+    @Column(nullable = true)
+    private Double other;
 
-    @Column(nullable = false)
-    private double water;
+    @Column(nullable = true)
+    private Double water;
 
-    @Column(nullable = false)
-    private double sugarSweetenedBeverages;
+    @Column(nullable = true)
+    private Double sugarSweetenedBeverages;
 
-    @Column(nullable = false)
-    private double energyGroupAvgDaily;
+    @Column(nullable = true)
+    private Double energyGroupAvgDaily;
 
-    @Column(nullable = false)
-    private double protectiveGroupAvgDaily;
+    @Column(nullable = true)
+    private Double protectiveGroupAvgDaily;
 
-    @Column(nullable = false)
-    private double bodybuildingGroupAvgDaily;
+    @Column(nullable = true)
+    private Double bodybuildingGroupAvgDaily;
 
-    @Column(nullable = false)
-    private double limitedFoodAvgDaily;
+    @Column(nullable = true)
+    private Double limitedFoodAvgDaily;
 
-    @Column(nullable = false)
-    private double limitedBeveragesAvgDaily;
+    @Column(nullable = true)
+    private Double limitedBeveragesAvgDaily;
 
-    @Column(nullable = false)
-    private double waterAvgDaily;
+    @Column(nullable = true)
+    private Double waterAvgDaily;
 
     public WeeklyIntake() {}
 
