@@ -1,32 +1,26 @@
-# Frontend Dev
-`cd dashboard-frontend` then `npm install` to get ready for developing. `npm run dev` to run the project. 
+# About This Project
+This is the Capstone Project of CS79-1, COMP5307, 2025S2. The project implements an Activity Intensity Simulate function, where users can drag on a chart to simulate the change of their Activity Intensity, and retrieve a predicted HFZ (Healthy Fitness Zone) classification marking the possible health condition following the activity pattern as daily routine, aiming at helping users develop an appropriate intensity of activities to keep health using intrinsic motivation. The project also visualises multiple types of health data, ranging from anthropometric measurements to bioelectrical impedance. 
 
-[Lucide Icons](https://lucide.dev/icons/) is used for icon assets. 
+# How to build
+The project implements Docker Compose. To fully boot up, you can run `docker compose up -d --build` at the root directory of the project. For the subsequent launching, the `--build` parameter is not required. 
 
-[Windtail CSS](https://tailwindcss.com/docs/) is used for styling. 
+## Before you build
+The Docker Compose config file, which is `compose.yaml`, reads critical configurations from environment variables, such as Docker Container Publish Ports, OpenAI API Key, and domains for the frontend and the server. You need to make a duplicate of `.env.example`, rename it to `.env` and fill the blanks or alter the values of some fields. 
 
-[Hero UI](https://www.heroui.com/docs/) is used for general ui components. (It is installed globally so for component importing please follow the instruction with `Global`)
+Please be aware that the domains, which will be `WEB_FRONTEND_BASE` and `SERVER_BASE` in `.env`, should be configured according to your actual deployment environment. `WEB_FRONTEND_BASE` is for CORS Policy. If multiple domains are needed, separate them with commas without space (e.g., `http://domain.com,https://domain.com`). `SERVER_BASE` specifies the API endpoints for the frontend. 
 
-[Chart.js](https://www.chartjs.org/docs) is used for charts. With [chartjs-plugin-dragdata](https://github.com/artus9033/chartjs-plugin-dragdata), interactive data visualisation is implemented. 
+>For localhost deployment, please make sure the ports of `WEB_FRONTEND_BASE` and `SERVER_BASE` are their containers' publish ports. 
 
-[axios](https://axios-http.com/docs/intro) will be used for HTTP Request/Response handling. 
+# How to import data
+Before batch importing the sample data, please make sure your data follow the pattern of DATA. 
 
-# Spring Boot Server Dev
-`cd dashboard-server` first. 
+To import, you can visit your frontend and sign in using Admin Account. You can find your auto-generated Admin Account on the server consoles, and its password will be rotated every 30 minutes. You can also retrieve the account by `GET {YOUR_SERVER}/localbackend/admin`. 
 
-For developing the Spring Boot program only, use `docker compose -f compose.data-only.yaml up -d` to launch PostgresSQL, Redis and RabbitMQ. 
+You should import the Participant Attributes table first, which is the `.csv` with all static attributes. Afterwards you can import all the activities data. The file names of activities data should match the `participant_id` in the Participant Attributes table. 
 
-For testing the connectivity between the frontend and the server, you can call `docker compose up -d`. 
+After importing, you can sign in using the imported accounts. The username is the `participant_id` (`SYNTH_xxxxxx`), the password is `pwd@` concatenated with the digits from the id (`pwd@xxxxxx`). 
 
-PostgreSQL runs on port `5432` in the container and is forwarded to port `5480` for out-of-container connection. 
+# Custom Data
+You can also extract your data from Apple HealthKit using the iOS demo app in directory `dashboard-extract`. Please be aware that the process of generating JSON file under debug mode may block the UI thread. If it happens, please wait patiently. 
 
-Redis runs on `6379` and is forwarded to `5481`. 
-
-RabbitMQ runs on `5672` with portal on `15672` and is forwarded to `5482` and `5483` respectively. 
-
-Spring Boot server runs on `8080` and is forwarded to `5484`. Frontend axios config is already set its baseURL to `localhost:5484` for dev.
-
-# Machine Learning Dev
-The ML model should be wrapped with [Flask](https://flask.palletsprojects.com/en/stable/) for communication from Spring Boot server. 
-
-Docker Compose configuration now defines Flask service to be run on port `5000` in the container and forwarded to `5486`. When the development comes to this stage, please be awared. 
+When you get your JSON file, you can upload it during account registration. 
