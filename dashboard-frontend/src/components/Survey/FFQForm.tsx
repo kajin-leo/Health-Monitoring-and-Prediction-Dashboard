@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import QuestionGroup from "./QuestionGroup";
 import { convertAnswersToServings } from "./ServingMapper";
 import {userAPI} from "../../service/api.ts"; 
+import ThankYou from "./Thankyou";
+import { useNavigate } from "react-router-dom";
+
+
 
 interface Question {
   id: string;
@@ -430,6 +434,7 @@ const FFQForm: React.FC = () => {
   const handleAnswer = (id: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
   };
+  const navigate = useNavigate();
 
   
   const nextPage = () => setPage((p) => Math.min(p + 1, groups.length - 1));
@@ -465,6 +470,17 @@ const handleSubmit = async () => {
     setLoading(false);
   }
 };
+
+  useEffect(() => {
+    if (submitted) {
+      const timer = setTimeout(() => navigate("/"), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [submitted, navigate]);
+
+  if (submitted) {
+    return <ThankYou onFinish={() => navigate("/")} />;
+  }
   return (
     <div>
       <QuestionGroup
@@ -505,7 +521,7 @@ const handleSubmit = async () => {
         Page {page + 1} of {groups.length}
       </p>
     </div>
-  );
-};
+    )}
+
 
 export default FFQForm;
