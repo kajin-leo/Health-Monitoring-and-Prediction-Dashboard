@@ -539,7 +539,6 @@ public class BatchImportService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username already exists");
         }
 
-        System.out.println("哈哈哈哈哈哈");
         // parse JSON（Just read the memory stream; if the file is large, switch to streaming/temporary file）
         JsonNode root;
         try (InputStream in = jsonFile.getInputStream()) {
