@@ -108,7 +108,7 @@ def generate_heatmap_data(userId):
     feat = df[["f1", "f2", "f3"]].copy()
     feat.columns = ["f1", "f2", "f3"]
 
-    # ====== 归一化 ======
+    # ====== normalization ======
     feat = normalizer.normalize(feat)
 
     # ====== pad or truncate ======
