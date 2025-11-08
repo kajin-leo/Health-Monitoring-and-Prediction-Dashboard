@@ -11,6 +11,18 @@ type ImpactResponse = {
   light_impact: ImpactItem[];
 };
 
+/**
+ * HealthStatusHeatmap
+ *
+ * This component:
+ * - Fetches heatmap data from the backend API
+ * - Listens for streaming updates (Server-Sent Events) if computation is ongoing
+ * - Displays two heatmaps side by side: one for MVPA and one for Light activity
+ *
+ * Props:
+ * - isWeekend: boolean flag indicating whether to display weekend or weekday data
+ */
+
 const HealthStatusHeatmap = ({ isWeekend }: { isWeekend: boolean }) => {
     const [isLoading, setLoading] = useState(true);
     const [chartData, setChartData] = useState<ImpactResponse>();

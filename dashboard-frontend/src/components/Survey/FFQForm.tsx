@@ -6,14 +6,15 @@ import ThankYou from "./Thankyou";
 import { useNavigate } from "react-router-dom";
 
 
-
+// Single question definition for the FFQ
 interface Question {
   id: string;
-  q: string;
-  options?: string[];
-  open?: boolean;
+  q: string; // Question text
+  options?: string[]; // List of selectable options
+  open?: boolean;// If true, this is an open-ended (free text) question
 }
 
+// Group of questions shown together on a single "page"
 interface Group {
   title: string;
   questions: Question[];

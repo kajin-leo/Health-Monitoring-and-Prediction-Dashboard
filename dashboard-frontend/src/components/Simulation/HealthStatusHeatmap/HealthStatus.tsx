@@ -12,6 +12,9 @@ import { Spinner } from "@heroui/react";
 
 ChartJS.register(CategoryScale, LinearScale, MatrixController, MatrixElement, Tooltip, Legend);
 
+// Payload structure used internally for the heatmap
+// value: average seconds in each bin
+// score: impact/attention score for each bin (used for color intensity)
 type HeatmapPayload = {
   value: Record<string, Record<string, number>>;
   score: Record<string, Record<string, number>>;
@@ -20,14 +23,27 @@ type HeatmapPayload = {
 const BIN_ORDER = ["0-600", "600-1200", "1200-1800", "1800-2400", "2400-3000", "3000-3600"];
 
 type ImpactItem = {
-  ts?: string | null;
-  hour: number;
-  weekday: number;
+  ts?: string | null; // timestamp, optional
+  hour: number; // hour of day (0–23)
+  weekday: number; // weekday index
   bin: string;
-  value?: number;
-  impact?: number;
+  value?: number;// one of BIN_ORDER
+  impact?: number;// impact/attention score for coloring
 };
 
+/**
+ * Convert aggregated value/score maps into an array of data points that
+ * Chart.js matrix plugin can understand.
+ *
+ * valueMap/scoreMap are shaped like:
+ * {
+ *   "0": { "0-600": 10, "600-1200": 20, ... },
+ *   "1": { ... },
+ *   ...
+ * }
+ *
+ * We flatten them to an array of { x: hour, y: bin, v: value, score }
+ */
 function convertHeatmapData(
   valueMap?: Record<string, Record<string, number>>,
   scoreMap?: Record<string, Record<string, number>>,
@@ -49,6 +65,15 @@ function convertHeatmapData(
   return data;
 }
 
+/**
+ * Compute the background color of each matrix cell based on its `score`.
+ * - score === 0: fully transparent (no color)
+ * - score < 0: blue-ish scale (for negative impact)
+ * - score > 0: red-ish scale (for positive impact)
+ *
+ * Note: assumes `score` has already been normalized to the range [-1, 1].
+ */
+
 const cellBg = (ctx: any) => {
   const v = ctx.raw?.score ?? 0;
   if (v === 0) {
@@ -68,6 +93,14 @@ const cellBg = (ctx: any) => {
     return `rgb(${r},${g},${b})`;
   }
 };
+
+/**
+ * Aggregate raw ImpactItem array into hour × bin averages.
+ *
+ * Returns:
+ * - valueMap[hour][bin] = average of `value`
+ * - scoreMap[hour][bin] = average of `impact`
+ */
 
 function toHourBinAggregates(items: ImpactItem[]) {
   const acc: Record<string, Record<string, { sv: number; si: number; c: number }>> = {};
