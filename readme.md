@@ -1,7 +1,7 @@
 # About This Project
 The project implements an Activity Intensity Simulate function, where users can drag on a chart to simulate the change of their Activity Intensity, and retrieve a predicted HFZ (Healthy Fitness Zone) classification marking the possible health condition following the activity pattern as daily routine, aiming at helping users develop an appropriate intensity of activities to keep health using intrinsic motivation. The project also visualises multiple types of health data, ranging from anthropometric measurements to bioelectrical impedance. 
 
-The model iteration process is documented in [Model Team Repository](https://github.sydney.edu.au/rzha0818/CS79-1-Model-Team). We also did some experiments with other model variants on our dataset, details at [Ruobing's Repository](https://github.sydney.edu.au/ruwu0681/Model_Time_Series_Lab). For the model results, please check [Model Results](https://unisydneyedu-my.sharepoint.com/:x:/g/personal/hzha0986_uni_sydney_edu_au/EV7_1u-GcVlKkKGGaDeZNW0BW8WDSMbmqBw6_aqu3kjM6Q?e=oAFfQA)
+The model iteration process is documented in [Model Team Repository](https://github.com/cubansj/HFZBMI-prediction-MVTS-model). We also did some experiments with other model variants on our dataset, details at [Ruobing's Repository](https://github.sydney.edu.au/ruwu0681/Model_Time_Series_Lab). For the model results, please check [Model Results](https://unisydneyedu-my.sharepoint.com/:x:/g/personal/hzha0986_uni_sydney_edu_au/EV7_1u-GcVlKkKGGaDeZNW0BW8WDSMbmqBw6_aqu3kjM6Q?e=oAFfQA)
 
 # Project Structure
 - The frontend SPA is developed using React + TypeScript, located in `/dashboard-frontend`. 
